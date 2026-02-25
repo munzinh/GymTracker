@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-neon: #00ff88;
+  --color-neon-dim: #00cc6a;
+  --color-bg: #090909;
+  --color-surface: #111111;
+  --color-card: #161616;
+  --color-border: #222222;
+  --color-text: #f0f0f0;
+  --color-muted: #888888;
+  --color-warning: #ffb800;
+  --color-danger: #ff4444;
+  --font-sans: 'Inter', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  background-color: #090909;
+  color: #f0f0f0;
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #111111;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00ff88;
+}
+
+/* Neon glow utility */
+.neon-text {
+  color: #00ff88;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+.neon-border {
+  border-color: #00ff88;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.15);
+}
+
+.card {
+  background: #161616;
+  border: 1px solid #222222;
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+/* Input styling */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  color: #f0f0f0;
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+textarea:focus,
+select:focus {
+  border-color: #00ff88;
+  box-shadow: 0 0 0 2px rgba(0, 255, 136, 0.1);
+}
+
+input[type="text"]::placeholder,
+input[type="number"]::placeholder,
+textarea::placeholder {
+  color: #555;
+}
+
+/* Button */
+.btn-primary {
+  background: #00ff88;
+  color: #090909;
+  font-weight: 600;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+}
+
+.btn-primary:hover {
+  background: #00cc6a;
+  box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #888;
+  border: 1px solid #2a2a2a;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+}
+
+.btn-secondary:hover {
+  border-color: #444;
+  color: #ccc;
+}
+
+.btn-danger {
+  background: transparent;
+  color: #ff4444;
+  border: 1px solid #ff4444;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+}
+
+.btn-danger:hover {
+  background: #ff4444;
+  color: #fff;
+}
+
+/* Recharts override */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #1e1e1e;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+/* Tab navigation */
+.tab-active {
+  color: #00ff88;
+  border-bottom: 2px solid #00ff88;
+}
+
+/* Score colors */
+.score-green { color: #00ff88; }
+.score-yellow { color: #ffb800; }
+.score-red { color: #ff4444; }
+
+/* Warning cards */
+.warn-yellow {
+  background: rgba(255, 184, 0, 0.08);
+  border: 1px solid rgba(255, 184, 0, 0.3);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+.warn-red {
+  background: rgba(255, 68, 68, 0.08);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}

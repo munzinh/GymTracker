@@ -1,0 +1,30 @@
+﻿src/components/Dashboard/BodyFatChart.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/Dashboard/BodyFatChart.tsx(30,21): error TS2322: Type '(v: number) => [string, "Body Fat"]' is not assignable to type 'Formatter<number, "Body Fat"> & ((value: number, name: "Body Fat", item: Payload<number, "Body Fat">, index: number, payload: Payload<number, "Body Fat">[]) => ReactNode | [...])'.
+  Type '(v: number) => [string, "Body Fat"]' is not assignable to type 'Formatter<number, "Body Fat">'.
+    Types of parameters 'v' and 'value' are incompatible.
+      Type 'number | undefined' is not assignable to type 'number'.
+        Type 'undefined' is not assignable to type 'number'.
+src/components/Dashboard/Dashboard.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/Dashboard/Dashboard.tsx(47,11): error TS6133: 'changeIcon' is declared but its value is never read.
+src/components/Dashboard/Dashboard.tsx(49,11): error TS6133: 'changeColor' is declared but its value is never read.
+src/components/Dashboard/WeightChart.tsx(1,1): error TS6133: 'React' is declared but its value is never read.
+src/components/Dashboard/WeightChart.tsx(30,21): error TS2322: Type '(v: number) => [string, "C├ón nß║╖ng"]' is not assignable to type 'Formatter<number, "C├ón nß║╖ng"> & ((value: number, name: "C├ón nß║╖ng", item: Payload<number, "C├ón nß║╖ng">, index: number, payload: Payload<number, "C├ón nß║╖ng">[]) => ReactNode | [...])'.
+  Type '(v: number) => [string, "C├ón nß║╖ng"]' is not assignable to type 'Formatter<number, "C├ón nß║╖ng">'.
+    Types of parameters 'v' and 'value' are incompatible.
+      Type 'number | undefined' is not assignable to type 'number'.
+        Type 'undefined' is not assignable to type 'number'.
+src/components/shared/Navbar.tsx(3,23): error TS2307: Cannot find module '../types' or its corresponding type declarations.
+src/context/AppContext.tsx(1,8): error TS6133: 'React' is declared but its value is never read.
+src/context/AppContext.tsx(1,44): error TS1484: 'ReactNode' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/context/AppContext.tsx(3,10): error TS1484: 'AppData' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/context/AppContext.tsx(3,19): error TS1484: 'DailyLog' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/context/AppContext.tsx(3,29): error TS1484: 'WeeklyCheck' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/context/AppContext.tsx(3,42): error TS1484: 'StrengthLog' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/context/AppContext.tsx(3,55): error TS1484: 'GoalSettings' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/utils/calculations.ts(1,10): error TS1484: 'DailyLog' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/utils/calculations.ts(1,20): error TS1484: 'WeeklyCheck' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/utils/calculations.ts(1,33): error TS1484: 'StrengthLog' is a type and must be imported using a type-only import when 'verbatimModuleSyntax' is enabled.
+src/utils/calculations.ts(2,10): error TS6133: 'startOfWeek' is declared but its value is never read.
+src/utils/calculations.ts(2,23): error TS6133: 'subWeeks' is declared but its value is never read.
+src/utils/calculations.ts(2,43): error TS6133: 'isWithinInterval' is declared but its value is never read.
+src/utils/calculations.ts(2,61): error TS6133: 'endOfWeek' is declared but its value is never read.
