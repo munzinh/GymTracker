@@ -11,7 +11,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"
   },
-  "homepage": "https://YOUR_GITHUB_USERNAME.github.io/gym",
+  "homepage": "https://munzinh.github.io/gym",
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
     "date-fns": "^4.1.0",
