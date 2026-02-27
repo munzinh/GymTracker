@@ -39,9 +39,22 @@ export function calcMacroTargets(profile: UserProfile): MacroSummary {
     const goalParams = GOALS_MAP[profile.goal] || GOALS_MAP['maintain'];
 
     const calories = Math.round(tdee * (1 + goalParams.deficitPct));
-    const protein = Math.round(profile.weight * goalParams.proteinFactor);
-    const fat = Math.round((calories * goalParams.fatPct) / 9);
-    const carbs = Math.round((calories - (protein * 4) - (fat * 9)) / 4);
+
+    // New Formula based on Body Fat %
+    const bodyFat = profile.bodyFatPercentage || 20; // Default to >15% if unknown
+
+    // Daily Protein: 2.0g/kg if BF < 15%, else 1.7g/kg
+    const proteinFactor = bodyFat < 15 ? 2.0 : 1.7;
+    const protein = Math.round(profile.weight * proteinFactor);
+
+    // Daily Fat: 0.6g/kg
+    const fat = Math.round(profile.weight * 0.6);
+
+    // Daily Carbs based on remaining calories
+    // 1 Protein = 4 cal, 1 Fat = 9 cal, 1 Carb = 4 cal
+    const proteinCal = protein * 4;
+    const fatCal = fat * 9;
+    const carbs = Math.round((calories - proteinCal - fatCal) / 4);
 
     return {
         calories,
