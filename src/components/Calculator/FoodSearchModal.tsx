@@ -53,13 +53,11 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
 
     // Scroll to top when opening or changing filters
     useEffect(() => {
-        if (scrollRef.current) scrollRef.current.scrollTop = 0;
-    }, [cat]); // Scroll up when category changes
-
-    // Also scroll up on initial mount
-    useEffect(() => {
-        if (scrollRef.current) scrollRef.current.scrollTop = 0;
-    }, []);
+        // Use requestAnimationFrame to ensure the list has rendered before scrolling
+        requestAnimationFrame(() => {
+            if (scrollRef.current) scrollRef.current.scrollTop = 0;
+        });
+    }, [cat, query]); // Scroll up when category or search query changes
 
     const results = useMemo(() => {
         const q = query.toLowerCase();
