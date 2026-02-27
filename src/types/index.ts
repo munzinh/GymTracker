@@ -41,4 +41,4 @@ export interface AppData {
     goals: GoalSettings;
 }
 
-export type TabId = 'dashboard' | 'tracking' | 'strength' | 'progress' | 'goals';
+export type TabId = 'dashboard' | 'tracking' | 'strength' | 'progress' | 'goals' | 'calculator';

@@ -1,0 +1,62 @@
+import type { UserProfile, MacroSummary } from '../types/nutrition';
+import type { FoodItem } from '../components/Calculator/foodDatabase';
+
+const ACTIVITY_MAP = {
+    sedentary: 1.2,
+    light: 1.375,
+    moderate: 1.55,
+    active: 1.725,
+    very_active: 1.9,
+};
+
+const GOALS_MAP = {
+    cut: { deficitPct: -0.20, proteinFactor: 2.2, fatPct: 0.25 },
+    maintain: { deficitPct: 0, proteinFactor: 1.8, fatPct: 0.27 },
+    bulk: { deficitPct: +0.15, proteinFactor: 1.9, fatPct: 0.28 },
+};
+
+export function calcBMI(w: number, h: number) {
+    if (!w || !h) return 0;
+    return Math.round((w / Math.pow(h / 100, 2)) * 10) / 10;
+}
+
+export function calcTDEE(profile: UserProfile): number {
+    const { weight: w, height: h, age, sex, activityLevel } = profile;
+    if (!w || !h || !age) return 0;
+
+    const bmr = sex === 'male'
+        ? 10 * w + 6.25 * h - 5 * age + 5
+        : 10 * w + 6.25 * h - 5 * age - 161;
+
+    const actMult = ACTIVITY_MAP[activityLevel] || 1.55;
+    return Math.round(bmr * actMult);
+}
+
+export function calcMacroTargets(profile: UserProfile): MacroSummary {
+    const tdee = calcTDEE(profile);
+    if (!tdee) return { calories: 0, protein: 0, carbs: 0, fat: 0 };
+
+    const goalParams = GOALS_MAP[profile.goal] || GOALS_MAP['maintain'];
+
+    const calories = Math.round(tdee * (1 + goalParams.deficitPct));
+    const protein = Math.round(profile.weight * goalParams.proteinFactor);
+    const fat = Math.round((calories * goalParams.fatPct) / 9);
+    const carbs = Math.round((calories - (protein * 4) - (fat * 9)) / 4);
+
+    return {
+        calories,
+        protein: Math.max(0, protein),
+        carbs: Math.max(0, carbs),
+        fat: Math.max(0, fat)
+    };
+}
+
+export function calcNutrition(food: FoodItem, grams: number): MacroSummary {
+    const r = grams / 100;
+    return {
+        calories: Math.round(food.per100g.calories * r),
+        protein: Math.round(food.per100g.protein * r * 10) / 10,
+        carbs: Math.round(food.per100g.carbs * r * 10) / 10,
+        fat: Math.round(food.per100g.fat * r * 10) / 10,
+    };
+}

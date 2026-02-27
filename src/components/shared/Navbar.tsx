@@ -1,66 +1,44 @@
-import React from 'react';
-import { Activity, BarChart3, Dumbbell, Target, Settings } from 'lucide-react';
-import type { TabId } from '../../types';
-
-const tabs: { id: TabId; label: string; icon: React.ReactNode }[] = [
-    { id: 'dashboard', label: 'Tổng quan', icon: <BarChart3 size={18} /> },
-    { id: 'tracking', label: 'Nhật ký', icon: <Activity size={18} /> },
-    { id: 'strength', label: 'Sức mạnh', icon: <Dumbbell size={18} /> },
-    { id: 'progress', label: 'Tiến độ', icon: <Target size={18} /> },
-    { id: 'goals', label: 'Mục tiêu', icon: <Settings size={18} /> },
-];
+import { Dumbbell, LogOut, User } from 'lucide-react';
+import type { CurrentUser } from '../../App';
 
 interface NavbarProps {
-    activeTab: TabId;
-    onTabChange: (tab: TabId) => void;
+    currentUser: CurrentUser;
+    onLogout: () => void;
 }
 
-export function Navbar({ activeTab, onTabChange }: NavbarProps) {
+export function Navbar({ currentUser, onLogout }: NavbarProps) {
     return (
         <>
-            {/* Desktop top bar */}
-            <header className="hidden md:flex items-center justify-between px-6 py-4 bg-[#111] border-b border-[#222] sticky top-0 z-50">
-                <div className="flex items-center gap-3">
+            {/* Desktop & Mobile top bar */}
+            <header className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-[#111] border-b border-[#222] sticky top-0 z-50">
+                <div className="flex items-center gap-2 md:gap-3">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center"
                         style={{ background: 'linear-gradient(135deg, #00ff88, #00cc6a)' }}>
                         <Dumbbell size={16} className="text-black" />
                     </div>
-                    <span className="font-bold text-base tracking-tight">
+                    <span className="font-bold text-sm md:text-base tracking-tight">
                         <span className="neon-text">CUT</span>
                         <span className="text-white ml-1">LEAN</span>
                     </span>
                 </div>
-                <nav className="flex gap-1">
-                    {tabs.map(t => (
-                        <button
-                            key={t.id}
-                            onClick={() => onTabChange(t.id)}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === t.id
-                                ? 'bg-[#1a2e22] text-[#00ff88]'
-                                : 'text-[#888] hover:text-[#ccc] hover:bg-[#1a1a1a]'
-                                }`}
-                        >
-                            {t.icon}
-                            {t.label}
-                        </button>
-                    ))}
-                </nav>
-            </header>
 
-            {/* Mobile bottom bar */}
-            <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex bg-[#111] border-t border-[#222]">
-                {tabs.map(t => (
+                <div className="flex items-center gap-3 md:gap-4">
+                    <div className="flex items-center gap-2 hidden md:flex">
+                        <div className="w-8 h-8 rounded-full bg-[#1a1a1a] flex items-center justify-center border border-[#333]">
+                            <User size={14} className="text-[#00ff88]" />
+                        </div>
+                        <span className="text-sm font-medium text-white">{currentUser.name}</span>
+                    </div>
                     <button
-                        key={t.id}
-                        onClick={() => onTabChange(t.id)}
-                        className={`flex-1 flex flex-col items-center py-3 gap-0.5 text-[10px] font-medium transition-colors ${activeTab === t.id ? 'text-[#00ff88]' : 'text-[#555]'
-                            }`}
+                        onClick={onLogout}
+                        className="flex items-center gap-1.5 px-3 py-1.5 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-medium text-[#ff4444] bg-[#ff444415] hover:bg-[#ff444422] transition-colors border border-[#ff444430]"
                     >
-                        {t.icon}
-                        {t.label}
+                        <LogOut size={14} />
+                        <span className="hidden md:inline">Đổi tài khoản</span>
+                        <span className="md:hidden">Thoát</span>
                     </button>
-                ))}
-            </nav>
+                </div>
+            </header>
 
             {/* Mobile top logo */}
             <header className="md:hidden flex items-center gap-2 px-4 py-3 bg-[#111] border-b border-[#222]">
