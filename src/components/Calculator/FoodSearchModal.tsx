@@ -53,6 +53,9 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
 
     // Scroll to top when opening or changing filters
     useEffect(() => {
+        // Cuộn toàn bộ trình duyệt lên trên cùng (xử lý lỗi Safari iOS bị vướng thanh công cụ)
+        window.scrollTo(0, 0);
+
         // Use requestAnimationFrame to ensure the list has rendered before scrolling
         requestAnimationFrame(() => {
             if (scrollRef.current) scrollRef.current.scrollTop = 0;
@@ -61,10 +64,13 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
 
     const results = useMemo(() => {
         const q = query.toLowerCase();
-        return foods.filter(f =>
+        const matches = foods.filter(f =>
             (!cat || f.category === cat) &&
             (!q || f.nameVi.toLowerCase().includes(q) || f.name.toLowerCase().includes(q))
-        ).slice(0, 30);
+        );
+
+        // Hiện tối đa 5 món nếu không tìm kiếm, nếu có tìm kiếm hiện 30 món
+        return matches.slice(0, q ? 30 : 5);
     }, [query, cat, foods]);
 
     const selectFood = (food: FoodItem) => {
