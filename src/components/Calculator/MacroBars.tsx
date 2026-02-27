@@ -20,12 +20,12 @@ export function MacroBars({ current, target }: Props) {
     const isFatHigh = fPct > 100;
 
     return (
-        <div className="card space-y-4">
-            <h3 className="font-bold text-sm text-[#888] uppercase tracking-wider mb-2">Mục tiêu Macros</h3>
+        <div className="card space-y-3">
+            <h3 className="font-bold text-[13px] text-[#888] uppercase tracking-wider mb-1.5">Mục tiêu Macros</h3>
 
             {/* Protein - Visually Dominant */}
-            <div className={`p-3 rounded-xl border transition-all ${isProteinLow ? 'bg-[#ffb80011] border-[#ffb80044]' : 'bg-[#111] border-[#222]'}`}>
-                <div className="flex justify-between items-end mb-2">
+            <div className={`p-2.5 rounded-xl border transition-all ${isProteinLow ? 'bg-[#ffb80011] border-[#ffb80044]' : 'bg-[#111] border-[#222]'}`}>
+                <div className="flex justify-between items-end mb-1.5">
                     <div>
                         <span className="font-extrabold text-white text-lg">Protein</span>
                         {isProteinLow && <span className="text-[10px] text-[#ffb800] ml-2 font-bold uppercase tracking-widest animate-pulse">Cần nạp thêm</span>}
@@ -41,12 +41,12 @@ export function MacroBars({ current, target }: Props) {
                 </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
                 {/* Carbs */}
-                <div className="bg-[#111] p-3 rounded-xl border border-[#222]">
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-white text-sm">Carbs</span>
-                        <div className="text-right text-xs">
+                <div className="bg-[#111] p-2.5 rounded-xl border border-[#222]">
+                    <div className="flex justify-between items-center mb-1.5">
+                        <span className="font-bold text-white text-[13px]">Carbs</span>
+                        <div className="text-right text-[11px]">
                             <span className="font-bold text-white">{Math.round(current.carbs)}</span>
                             <span className="text-[#666] ml-1">/ {target.carbs}g</span>
                         </div>
@@ -57,10 +57,10 @@ export function MacroBars({ current, target }: Props) {
                 </div>
 
                 {/* Fat */}
-                <div className={`p-3 rounded-xl border transition-all ${isFatHigh ? 'bg-[#ff444411] border-[#ff444444]' : 'bg-[#111] border-[#222]'}`}>
-                    <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-white text-sm">Fat</span>
-                        <div className="text-right text-xs">
+                <div className={`p-2.5 rounded-xl border transition-all ${isFatHigh ? 'bg-[#ff444411] border-[#ff444444]' : 'bg-[#111] border-[#222]'}`}>
+                    <div className="flex justify-between items-center mb-1.5">
+                        <span className="font-bold text-white text-[13px]">Fat</span>
+                        <div className="text-right text-[11px]">
                             <span className={`font-bold ${isFatHigh ? 'text-[#ff4444] animate-pulse-red' : 'text-white'}`}>
                                 {Math.round(current.fat)}
                             </span>

@@ -41,7 +41,7 @@ export function MealSlotCard({ userId, slot, dailyTotals, dailyTargets, onAdd, o
         <div className="rounded-2xl border overflow-hidden" style={{ background: '#111', borderColor: '#1e1e1e' }}>
 
             {/* HEADER */}
-            <button className="w-full flex items-center gap-3 px-4 py-3" onClick={() => setCollapsed(c => !c)}>
+            <button className="w-full flex items-center gap-3 px-3 py-2.5" onClick={() => setCollapsed(c => !c)}>
                 <span className="text-xl shrink-0">{EMOJI_MAP[slot.id]}</span>
                 <div className="flex-1 min-w-0 text-left">
                     <p className="font-bold text-[14px] text-white">{slot.name}</p>
@@ -63,7 +63,7 @@ export function MealSlotCard({ userId, slot, dailyTotals, dailyTargets, onAdd, o
 
             {/* BODY */}
             {!collapsed && (
-                <div className="px-3 pb-3 space-y-1.5 border-t border-[#1a1a1a] pt-2.5">
+                <div className="px-3 pb-2 space-y-1 border-t border-[#1a1a1a] pt-2">
 
                     {/* Protein hint — compact */}
                     {isProteinLow && slot.items.length === 0 && (
@@ -78,7 +78,7 @@ export function MealSlotCard({ userId, slot, dailyTotals, dailyTargets, onAdd, o
 
                     {/* Food rows */}
                     {slot.items.map(item => (
-                        <div key={item.id} className="flex items-center gap-2 rounded-xl px-3 py-2.5"
+                        <div key={item.id} className="flex items-center gap-2 rounded-xl px-2.5 py-1.5"
                             style={{ background: '#191919', border: '1px solid #252525' }}>
                             {/* Accent dot */}
                             <div className="w-1 h-1 rounded-full shrink-0 self-center" style={{ background: accent, boxShadow: `0 0 4px ${accent}` }} />
@@ -107,7 +107,7 @@ export function MealSlotCard({ userId, slot, dailyTotals, dailyTargets, onAdd, o
 
                     {/* Meal total — only if has items */}
                     {slot.items.length > 0 && (
-                        <div className="flex justify-between items-center rounded-xl px-3 py-2"
+                        <div className="flex justify-between items-center rounded-xl px-2.5 py-1.5 mt-1"
                             style={{ background: '#161616', border: `1px solid ${accent}18` }}>
                             <span className="text-[10px] text-[#555] font-bold uppercase tracking-wide">Tổng</span>
                             <div className="flex gap-2.5 text-[11px] font-bold">
@@ -121,7 +121,7 @@ export function MealSlotCard({ userId, slot, dailyTotals, dailyTargets, onAdd, o
 
                     {/* Add button */}
                     <button onClick={() => setSearchOpen(true)}
-                        className="w-full py-2.5 rounded-xl border border-dashed text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.99]"
+                        className="w-full py-2 mt-1.5 rounded-xl border border-dashed text-[13px] font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.99]"
                         style={{ borderColor: accent + '40', color: accent, background: accent + '08' }}>
                         <Plus size={15} />
                         Thêm món

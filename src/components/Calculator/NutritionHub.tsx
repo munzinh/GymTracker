@@ -196,10 +196,10 @@ export function NutritionHub({ userId }: { userId: string }) {
     }
 
     return (
-        <div className="pb-24 max-w-md mx-auto space-y-4">
+        <div className="pb-24 max-w-md mx-auto space-y-3">
 
             {/* Gamification Header */}
-            <div className="flex items-center justify-between p-4 bg-[#111] border-b border-[#222]">
+            <div className="flex items-center justify-between px-4 py-3 bg-[#111] border-b border-[#222]">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full border-2 flex items-center justify-center bg-[#1a1a1a]" style={{ borderColor: gamification.level > 1 ? '#00e5ff' : '#00ff88' }}>
                         <User size={18} className={gamification.level > 1 ? 'text-[#00e5ff]' : 'text-[#00ff88]'} />
@@ -216,7 +216,7 @@ export function NutritionHub({ userId }: { userId: string }) {
 
             {/* Navigation Tabs */}
             <div className="px-4">
-                <div className="flex bg-[#111] border border-[#222] rounded-xl p-1 overflow-hidden">
+                <div className="flex bg-[#111] border border-[#222] rounded-xl p-0.5 overflow-hidden">
                     {[
                         { id: 'daily' as const, icon: Target, label: 'Tracking' },
                         { id: 'weekly' as const, icon: Award, label: 'Báo cáo' },
@@ -226,7 +226,7 @@ export function NutritionHub({ userId }: { userId: string }) {
                         const active = tab === t.id;
                         return (
                             <button key={t.id} onClick={() => setTab(t.id)}
-                                className={`flex-1 flex flex-col items-center gap-1 py-2.5 rounded-lg text-xs font-bold transition-all ${active ? 'bg-[#22d3ee] text-[#050505] shadow-[0_0_12px_rgba(34,211,238,0.3)]' : 'text-[#666] hover:bg-[#1a1a1a] hover:text-[#ccc]'}`}>
+                                className={`flex-1 flex flex-col items-center gap-1 py-2 rounded-lg text-xs font-bold transition-all ${active ? 'bg-[#22d3ee] text-[#050505] shadow-[0_0_12px_rgba(34,211,238,0.3)]' : 'text-[#666] hover:bg-[#1a1a1a] hover:text-[#ccc]'}`}>
                                 <t.icon size={16} />
                                 {t.label}
                             </button>
@@ -265,7 +265,7 @@ export function NutritionHub({ userId }: { userId: string }) {
 
             {/* Tab: Daily Tracking */}
             {tab === 'daily' && targets && (
-                <div className="px-4 space-y-4 fade-in">
+                <div className="px-4 space-y-3 fade-in">
 
                     {/* Date Navigator */}
                     <div className="flex justify-between items-center bg-[#111] p-1.5 rounded-xl border border-[#222]">
@@ -286,8 +286,8 @@ export function NutritionHub({ userId }: { userId: string }) {
                     </div>
 
                     {/* Progress Ring */}
-                    <div className="bg-[#111] rounded-[24px] border border-[#222] shadow-sm flex justify-center py-2">
-                        <ProgressRing current={dailyTotals.calories} target={targets.calories} size={220} strokeWidth={18} />
+                    <div className="bg-[#111] rounded-3xl border border-[#222] shadow-sm flex justify-center py-1.5">
+                        <ProgressRing current={dailyTotals.calories} target={targets.calories} size={200} strokeWidth={16} />
                     </div>
 
                     {/* Macro Bars */}
