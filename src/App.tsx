@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { AppProvider } from './context/AppContext';
-import { Navbar } from './components/shared/Navbar';
 import { LoginScreen } from './components/Auth/LoginScreen';
 import { FitnessCalculator } from './components/Calculator/FitnessCalculator';
 
@@ -36,11 +35,9 @@ function AppContent() {
 
   return (
     <div className="min-h-screen" style={{ background: '#090909' }}>
-      <Navbar currentUser={currentUser} onLogout={handleLogout} />
-
-      {/* Main content - Now only the calculator (NutritionHub) */}
-      <main className="max-w-2xl mx-auto px-4 py-5 pb-24 md:pb-8">
-        <FitnessCalculator userId={currentUser.id} />
+      {/* Main content - Unified Dashboard (NutritionHub) */}
+      <main className="w-full mx-auto pb-24 md:pb-8">
+        <FitnessCalculator currentUser={currentUser} onLogout={handleLogout} />
       </main>
     </div>
   );
