@@ -9,9 +9,10 @@ interface NavbarProps {
 export function Navbar({ currentUser, onLogout }: NavbarProps) {
     return (
         <>
-            {/* Desktop & Mobile top bar */}
+            {/* Desktop & Mobile top bar (contains User actions) */}
             <header className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-[#111] border-b border-[#222] sticky top-0 z-50">
-                <div className="flex items-center gap-2 md:gap-3">
+                {/* Logo - Hidden on mobile, shown on desktop */}
+                <div className="hidden md:flex items-center gap-2 md:gap-3">
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center"
                         style={{ background: 'linear-gradient(135deg, #00ff88, #00cc6a)' }}>
                         <Dumbbell size={16} className="text-black" />
@@ -21,6 +22,9 @@ export function Navbar({ currentUser, onLogout }: NavbarProps) {
                         <span className="text-white ml-1">LEAN</span>
                     </span>
                 </div>
+
+                {/* Spacer on mobile since logo is in the other header */}
+                <div className="md:hidden flex-1" />
 
                 <div className="flex items-center gap-3 md:gap-4">
                     <div className="flex items-center gap-2 hidden md:flex">
