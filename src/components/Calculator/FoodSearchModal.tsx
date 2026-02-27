@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, X, Plus, Minus, Check, ChevronRight, Info, AlertCircle } from 'lucide-react';
 import { FOOD_CATEGORIES, type FoodItem, loadFoodDatabase } from './foodDatabase';
 import { calcNutrition } from '../../utils/nutritionMath';
@@ -49,6 +49,17 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
     const [pickedId, setPickedId] = useState<string | null>(null);
     const [grams, setGrams] = useState(100);
     const inputRef = useRef<HTMLInputElement>(null);
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Scroll to top when opening or changing filters
+    useEffect(() => {
+        if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    }, [cat]); // Scroll up when category changes
+
+    // Also scroll up on initial mount
+    useEffect(() => {
+        if (scrollRef.current) scrollRef.current.scrollTop = 0;
+    }, []);
 
     const results = useMemo(() => {
         const q = query.toLowerCase();
@@ -113,7 +124,10 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
             </div>
 
             {/* Scrollable Area */}
-            <div className="flex-1 overflow-y-auto hide-scrollbar overscroll-contain pb-20">
+            <div
+                ref={scrollRef}
+                className="flex-1 overflow-y-auto hide-scrollbar overscroll-contain pb-20"
+            >
 
                 {/* Category Bar */}
                 <div className="flex gap-2.5 px-4 py-4 overflow-x-auto hide-scrollbar">
@@ -152,8 +166,8 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                                 <div
                                     key={food.id}
                                     className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${isPicked
-                                            ? 'bg-[#121212] border-[#00ff8840] shadow-[0_8px_24px_rgba(0,0,0,0.5)] z-10'
-                                            : 'bg-white/[0.02] border-white/5 hover:border-white/10'
+                                        ? 'bg-[#121212] border-[#00ff8840] shadow-[0_8px_24px_rgba(0,0,0,0.5)] z-10'
+                                        : 'bg-white/[0.02] border-white/5 hover:border-white/10'
                                         }`}
                                 >
                                     <button
@@ -242,8 +256,8 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                                                                     key={s.label}
                                                                     onClick={() => setGrams(s.grams)}
                                                                     className={`px-4 py-2.5 rounded-xl border text-[11px] font-black transition-all ${grams === s.grams
-                                                                            ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
-                                                                            : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
+                                                                        ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
+                                                                        : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
                                                                         }`}
                                                                 >
                                                                     {s.label}
@@ -253,8 +267,8 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                                                                 <button
                                                                     onClick={() => setGrams(food.commonServingG!)}
                                                                     className={`px-4 py-2.5 rounded-xl border text-[11px] font-black transition-all ${grams === food.commonServingG
-                                                                            ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
-                                                                            : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
+                                                                        ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
+                                                                        : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
                                                                         }`}
                                                                 >
                                                                     {food.servingLabel || '1 Phần'}
@@ -268,8 +282,8 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                                                                     key={p}
                                                                     onClick={() => setGrams(p)}
                                                                     className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${grams === p
-                                                                            ? 'bg-white/10 border-white/20 text-white'
-                                                                            : 'bg-transparent border-white/5 text-[#444]'
+                                                                        ? 'bg-white/10 border-white/20 text-white'
+                                                                        : 'bg-transparent border-white/5 text-[#444]'
                                                                         }`}
                                                                 >
                                                                     {p}g
