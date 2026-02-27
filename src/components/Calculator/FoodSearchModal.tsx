@@ -69,8 +69,8 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
             (!q || f.nameVi.toLowerCase().includes(q) || f.name.toLowerCase().includes(q))
         );
 
-        // Hiện tối đa 5 món nếu không tìm kiếm, nếu có tìm kiếm hiện 30 món
-        return matches.slice(0, q ? 30 : 5);
+        // Luôn trả về 30 món để user có thể cuộn bên trong danh sách nhỏ
+        return matches.slice(0, 30);
     }, [query, cat, foods]);
 
     const selectFood = (food: FoodItem) => {
@@ -127,14 +127,15 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                 </div>
             </div>
 
-            {/* Scrollable Area */}
+            {/* Scrollable Area - Fixed Height for ~5 Items */}
             <div
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto hide-scrollbar overscroll-contain pb-20"
+                className="overflow-y-auto hide-scrollbar overscroll-contain pb-20 mt-2 mx-4"
+                style={{ maxHeight: '45dvh', height: '420px' }}
             >
 
                 {/* Category Bar */}
-                <div className="flex gap-2.5 px-4 py-4 overflow-x-auto hide-scrollbar">
+                <div className="flex gap-2.5 py-2 mb-2 overflow-x-auto hide-scrollbar sticky top-0 z-10 bg-[#080808]">
                     {['', ...FOOD_CATEGORIES].map(c => (
                         <button
                             key={c || '_all'}
@@ -149,177 +150,180 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                 </div>
 
                 {/* List */}
-                <div className="px-4 space-y-3">
-                    {results.length === 0 ? (
-                        <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
-                            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-[#333]">
-                                <AlertCircle size={32} />
-                            </div>
-                            <div>
-                                <p className="text-[#888] font-bold">Không tìm thấy món bạn cần</p>
-                                <p className="text-[12px] text-[#444] mt-1">Hãy thử tìm từ khoá khác hoặc tự thêm món mới</p>
-                            </div>
-                            <button className="px-6 py-2.5 rounded-full bg-white/5 border border-white/10 text-[12px] font-black text-[#00ff88] hover:bg-white/10 transition-all uppercase tracking-wider">
-                                + Tự thêm món mới
-                            </button>
-                        </div>
-                    ) : (
-                        results.map(food => {
-                            const isPicked = pickedId === food.id;
-                            return (
-                                <div
-                                    key={food.id}
-                                    className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${isPicked
-                                        ? 'bg-[#121212] border-[#00ff8840] shadow-[0_8px_24px_rgba(0,0,0,0.5)] z-10'
-                                        : 'bg-white/[0.02] border-white/5 hover:border-white/10'
-                                        }`}
-                                >
-                                    <button
-                                        onClick={() => selectFood(food)}
-                                        className="w-full text-left flex items-center gap-4 px-4 py-4 active:scale-[0.98] transition-transform"
-                                    >
-                                        <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-lg font-black"
-                                            style={{ background: isPicked ? '#00ff88' : '#1a1a1a', color: isPicked ? '#000' : '#444' }}>
-                                            {food.nameVi.charAt(0)}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="text-[14px] font-bold text-white mb-0.5">{food.nameVi}</h4>
-                                            <p className="text-[11px] text-[#555] font-medium">
-                                                {food.category} • {food.servingLabel || 'Khối lượng'}
-                                            </p>
-                                        </div>
-                                        <div className="text-right">
-                                            <p className="text-[15px] font-black text-white">{food.per100g.calories}</p>
-                                            <p className="text-[9px] font-bold text-[#444] uppercase tracking-tighter">kcal / 100g</p>
-                                        </div>
-                                        <ChevronRight size={16} className={`text-[#333] transition-transform duration-300 ${isPicked ? 'rotate-90 text-[#00ff88]' : ''}`} />
-                                    </button>
-
-                                    {/* Expansion Panel */}
-                                    {isPicked && (
-                                        <div className="px-4 pb-5 space-y-5 fade-in">
-
-                                            {/* Macro Visualizer */}
-                                            {preview && (
-                                                <div className="bg-black/20 rounded-2xl p-4 flex items-center justify-between border border-white/5">
-                                                    <div className="flex-1">
-                                                        <div className="flex items-baseline gap-1">
-                                                            <span className="text-[32px] font-black text-white leading-none">{preview.calories}</span>
-                                                            <span className="text-xs font-bold text-[#555] uppercase">Kcal</span>
-                                                        </div>
-                                                        <p className="text-[11px] text-[#444] font-medium mt-1 flex items-center gap-1.5">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-[#00ff88]" />
-                                                            Tổng dinh dưỡng cho {grams}g
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex gap-4">
-                                                        <MacroCircle label="Pro" value={Math.round(preview.protein)} color="#00ff88" />
-                                                        <MacroCircle label="Carb" value={Math.round(preview.carbs)} color="#00e5ff" />
-                                                        <MacroCircle label="Fat" value={Math.round(preview.fat)} color="#ffb800" />
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Input Section */}
-                                            <div className="space-y-4">
-                                                <div className="flex flex-col items-center gap-3">
-                                                    <div className="flex items-center gap-6">
-                                                        <button
-                                                            onClick={() => setGrams(g => Math.max(1, g - (g > 100 ? 50 : 10)))}
-                                                            className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-[#00ff88] active:text-black transition-all"
-                                                        >
-                                                            <Minus size={20} />
-                                                        </button>
-                                                        <div className="relative flex items-center gap-2">
-                                                            <input
-                                                                type="number"
-                                                                value={grams}
-                                                                onChange={e => setGrams(Math.max(1, parseInt(e.target.value) || 0))}
-                                                                className="w-24 text-center text-[42px] font-black text-white bg-transparent outline-none border-b-2 border-white/10 focus:border-[#00ff88] transition-colors"
-                                                            />
-                                                            <span className="text-[#444] font-black text-xl">g</span>
-                                                        </div>
-                                                        <button
-                                                            onClick={() => setGrams(g => g + (g >= 100 ? 50 : 10))}
-                                                            className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-[#00ff88] active:text-black transition-all"
-                                                        >
-                                                            <Plus size={20} />
-                                                        </button>
-                                                    </div>
-
-                                                    {/* Serving Choices */}
-                                                    <div className="w-full space-y-3 pt-2">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="h-[1px] flex-1 bg-white/5" />
-                                                            <span className="text-[9px] font-black text-[#444] uppercase tracking-widest whitespace-nowrap">ĐỊNH LƯỢNG CHUẨN</span>
-                                                            <div className="h-[1px] flex-1 bg-white/5" />
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-2 justify-center">
-                                                            {food.servings?.map(s => (
-                                                                <button
-                                                                    key={s.label}
-                                                                    onClick={() => setGrams(s.grams)}
-                                                                    className={`px-4 py-2.5 rounded-xl border text-[11px] font-black transition-all ${grams === s.grams
-                                                                        ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
-                                                                        : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
-                                                                        }`}
-                                                                >
-                                                                    {s.label}
-                                                                </button>
-                                                            ))}
-                                                            {!food.servings && food.commonServingG && (
-                                                                <button
-                                                                    onClick={() => setGrams(food.commonServingG!)}
-                                                                    className={`px-4 py-2.5 rounded-xl border text-[11px] font-black transition-all ${grams === food.commonServingG
-                                                                        ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
-                                                                        : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
-                                                                        }`}
-                                                                >
-                                                                    {food.servingLabel || '1 Phần'}
-                                                                </button>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="flex flex-wrap gap-2 justify-center opacity-60">
-                                                            {QUICK_GRAMS.filter(p => p !== food.commonServingG && !food.servings?.some(s => s.grams === p)).map(p => (
-                                                                <button
-                                                                    key={p}
-                                                                    onClick={() => setGrams(p)}
-                                                                    className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${grams === p
-                                                                        ? 'bg-white/10 border-white/20 text-white'
-                                                                        : 'bg-transparent border-white/5 text-[#444]'
-                                                                        }`}
-                                                                >
-                                                                    {p}g
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Action Button */}
-                                                <button
-                                                    onClick={() => confirmAdd(food)}
-                                                    className="w-full py-4 rounded-2xl bg-[#00ff88] text-black text-[15px] font-black uppercase tracking-widest shadow-[0_8px_32px_rgba(0,255,136,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                                                >
-                                                    <Check size={20} strokeWidth={3} />
-                                                    Xác nhận thêm
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
+                <div className="space-y-3">
+                    {
+                        results.length === 0 ? (
+                            <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
+                                <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center text-[#333]">
+                                    <AlertCircle size={32} />
                                 </div>
-                            );
-                        })
-                    )}
-                </div>
-            </div>
+                                <div>
+                                    <p className="text-[#888] font-bold">Không tìm thấy món bạn cần</p>
+                                    <p className="text-[12px] text-[#444] mt-1">Hãy thử tìm từ khoá khác hoặc tự thêm món mới</p>
+                                </div>
+                                <button className="px-6 py-2.5 rounded-full bg-white/5 border border-white/10 text-[12px] font-black text-[#00ff88] hover:bg-white/10 transition-all uppercase tracking-wider">
+                                    + Tự thêm món mới
+                                </button>
+                            </div>
+                        ) : (
+                            results.map(food => {
+                                const isPicked = pickedId === food.id;
+                                return (
+                                    <div
+                                        key={food.id}
+                                        className={`relative overflow-hidden rounded-2xl border transition-all duration-300 ${isPicked
+                                            ? 'bg-[#121212] border-[#00ff8840] shadow-[0_8px_24px_rgba(0,0,0,0.5)] z-10'
+                                            : 'bg-white/[0.02] border-white/5 hover:border-white/10'
+                                            }`}
+                                    >
+                                        <button
+                                            onClick={() => selectFood(food)}
+                                            className="w-full text-left flex items-center gap-4 px-4 py-4 active:scale-[0.98] transition-transform"
+                                        >
+                                            <div className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-lg font-black"
+                                                style={{ background: isPicked ? '#00ff88' : '#1a1a1a', color: isPicked ? '#000' : '#444' }}>
+                                                {food.nameVi.charAt(0)}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <h4 className="text-[14px] font-bold text-white mb-0.5">{food.nameVi}</h4>
+                                                <p className="text-[11px] text-[#555] font-medium">
+                                                    {food.category} • {food.servingLabel || 'Khối lượng'}
+                                                </p>
+                                            </div>
+                                            <div className="text-right">
+                                                <p className="text-[15px] font-black text-white">{food.per100g.calories}</p>
+                                                <p className="text-[9px] font-bold text-[#444] uppercase tracking-tighter">kcal / 100g</p>
+                                            </div>
+                                            <ChevronRight size={16} className={`text - [#333] transition - transform duration - 300 ${isPicked ? 'rotate-90 text-[#00ff88]' : ''}`} />
+                                        </button>
+
+                                        {/* Expansion Panel */}
+                                        {isPicked && (
+                                            <div className="px-4 pb-5 space-y-5 fade-in">
+
+                                                {/* Macro Visualizer */}
+                                                {preview && (
+                                                    <div className="bg-black/20 rounded-2xl p-4 flex items-center justify-between border border-white/5">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-baseline gap-1">
+                                                                <span className="text-[32px] font-black text-white leading-none">{preview.calories}</span>
+                                                                <span className="text-xs font-bold text-[#555] uppercase">Kcal</span>
+                                                            </div>
+                                                            <p className="text-[11px] text-[#444] font-medium mt-1 flex items-center gap-1.5">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-[#00ff88]" />
+                                                                Tổng dinh dưỡng cho {grams}g
+                                                            </p>
+                                                        </div>
+                                                        <div className="flex gap-4">
+                                                            <MacroCircle label="Pro" value={Math.round(preview.protein)} color="#00ff88" />
+                                                            <MacroCircle label="Carb" value={Math.round(preview.carbs)} color="#00e5ff" />
+                                                            <MacroCircle label="Fat" value={Math.round(preview.fat)} color="#ffb800" />
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {/* Input Section */}
+                                                <div className="space-y-4">
+                                                    <div className="flex flex-col items-center gap-3">
+                                                        <div className="flex items-center gap-6">
+                                                            <button
+                                                                onClick={() => setGrams(g => Math.max(1, g - (g > 100 ? 50 : 10)))}
+                                                                className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-[#00ff88] active:text-black transition-all"
+                                                            >
+                                                                <Minus size={20} />
+                                                            </button>
+                                                            <div className="relative flex items-center gap-2">
+                                                                <input
+                                                                    type="number"
+                                                                    value={grams}
+                                                                    onChange={e => setGrams(Math.max(1, parseInt(e.target.value) || 0))}
+                                                                    className="w-24 text-center text-[42px] font-black text-white bg-transparent outline-none border-b-2 border-white/10 focus:border-[#00ff88] transition-colors"
+                                                                />
+                                                                <span className="text-[#444] font-black text-xl">g</span>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => setGrams(g => g + (g >= 100 ? 50 : 10))}
+                                                                className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-[#00ff88] active:text-black transition-all"
+                                                            >
+                                                                <Plus size={20} />
+                                                            </button>
+                                                        </div>
+
+                                                        {/* Serving Choices */}
+                                                        <div className="w-full space-y-3 pt-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="h-[1px] flex-1 bg-white/5" />
+                                                                <span className="text-[9px] font-black text-[#444] uppercase tracking-widest whitespace-nowrap">ĐỊNH LƯỢNG CHUẨN</span>
+                                                                <div className="h-[1px] flex-1 bg-white/5" />
+                                                            </div>
+                                                            <div className="flex flex-wrap gap-2 justify-center">
+                                                                {food.servings?.map(s => (
+                                                                    <button
+                                                                        key={s.label}
+                                                                        onClick={() => setGrams(s.grams)}
+                                                                        className={`px - 4 py - 2.5 rounded - xl border text - [11px] font - black transition - all ${grams === s.grams
+                                                                            ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
+                                                                            : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
+                                                                            }`}
+                                                                    >
+                                                                        {s.label}
+                                                                    </button>
+                                                                ))}
+                                                                {!food.servings && food.commonServingG && (
+                                                                    <button
+                                                                        onClick={() => setGrams(food.commonServingG!)}
+                                                                        className={`px-4 py-2.5 rounded-xl border text-[11px] font-black transition-all ${grams === food.commonServingG
+                                                                            ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
+                                                                            : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
+                                                                            }`}
+                                                                    >
+                                                                        {food.servingLabel || '1 Phần'}
+                                                                    </button>
+                                                                )}
+                                                            </div>
+
+                                                            <div className="flex flex-wrap gap-2 justify-center opacity-60">
+                                                                {QUICK_GRAMS.filter(p => p !== food.commonServingG && !food.servings?.some(s => s.grams === p)).map(p => (
+                                                                    <button
+                                                                        key={p}
+                                                                        onClick={() => setGrams(p)}
+                                                                        className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${grams === p
+                                                                            ? 'bg-white/10 border-white/20 text-white'
+                                                                            : 'bg-transparent border-white/5 text-[#444]'
+                                                                            }`}
+                                                                    >
+                                                                        {p}g
+                                                                    </button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div >
+
+                                                    {/* Action Button */}
+                                                    < button
+                                                        onClick={() => confirmAdd(food)
+                                                        }
+                                                        className="w-full py-4 rounded-2xl bg-[#00ff88] text-black text-[15px] font-black uppercase tracking-widest shadow-[0_8px_32px_rgba(0,255,136,0.2)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                                    >
+                                                        <Check size={20} strokeWidth={3} />
+                                                        Xác nhận thêm
+                                                    </button >
+                                                </div >
+                                            </div >
+                                        )}
+                                    </div >
+                                );
+                            })
+                        )
+                    }
+                </div >
+            </div >
 
             {/* Hint bar at bottom */}
-            <div className="bg-[#111] border-t border-white/5 px-4 py-4 flex items-center justify-center gap-2 text-[#444] shrink-0">
+            < div className="bg-[#111] border-t border-white/5 px-4 py-4 flex items-center justify-center gap-2 text-[#444] shrink-0" >
                 <Info size={14} />
                 <span className="text-[11px] font-bold">Chọn món để xem chi tiết dinh dưỡng</span>
-            </div>
-        </div>
+            </div >
+        </div >
     );
 }
