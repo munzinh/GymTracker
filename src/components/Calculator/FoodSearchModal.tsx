@@ -127,11 +127,11 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                 </div>
             </div>
 
-            {/* Scrollable Area - Fixed Height for ~5 Items */}
+            {/* Scrollable Area */}
             <div
                 ref={scrollRef}
                 className="overflow-y-auto hide-scrollbar overscroll-contain pb-20 mt-2 mx-4"
-                style={{ maxHeight: '45dvh', height: '420px' }}
+                style={{ maxHeight: '75dvh' }}
             >
 
                 {/* Category Bar */}
