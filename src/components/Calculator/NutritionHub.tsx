@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-    Flame, Calendar, Target, Award, User, ChevronLeft, ChevronRight, CheckCircle2, Database, Dumbbell, LogOut
+    Flame, Calendar, Target, Award, User, ChevronLeft, ChevronRight, CheckCircle2, Database, Dumbbell, LogOut, Activity, BookOpen
 } from 'lucide-react';
 import type {
     UserProfile, DailyLog, MealSlotId, MealSlot, MacroSummary, MealItem
@@ -20,6 +20,8 @@ import { MacroBars } from './MacroBars';
 import { MealSlotCard } from './MealSlotCardUI';
 import { WeeklyAnalytics } from './WeeklyAnalytics';
 import { FoodDatabaseManager } from './FoodDatabaseManager';
+import { BodyMetrics } from './BodyMetrics';
+import { FormulasGuide } from './FormulasGuide';
 
 // Helpers
 function sumEntries(entries: MealItem[]): MacroSummary {
@@ -46,7 +48,7 @@ function sumAllMeals(slots: Record<MealSlotId, MealSlot>): MacroSummary {
 
 export function NutritionHub({ currentUser, onLogout }: { currentUser: import('../../App').CurrentUser, onLogout: () => void }) {
     const userId = currentUser.id;
-    const [tab, setTab] = useState<'daily' | 'weekly' | 'database' | 'profile'>('daily');
+    const [tab, setTab] = useState<'daily' | 'weekly' | 'metrics' | 'database' | 'formulas' | 'profile'>('daily');
 
     // Core state
     const [profile, setProfile] = useState<UserProfile | null>(() => loadProfile(userId));
@@ -231,18 +233,20 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
 
                 {/* Row 2: Segmented Navigation Tabs */}
                 <div className="px-4 pb-2.5">
-                    <div className="flex bg-[#181818] rounded-[10px] p-0.5 border border-[#2a2a2a]">
+                    <div className="flex bg-[#181818] rounded-[10px] p-0.5 border border-[#2a2a2a] overflow-x-auto hide-scrollbar">
                         {[
                             { id: 'daily' as const, icon: Target, label: 'Tracking' },
                             { id: 'weekly' as const, icon: Award, label: 'Báo cáo' },
+                            { id: 'metrics' as const, icon: Activity, label: 'Chỉ số' },
                             { id: 'database' as const, icon: Database, label: 'Database' },
+                            { id: 'formulas' as const, icon: BookOpen, label: 'Công thức' },
                             { id: 'profile' as const, icon: User, label: 'Hồ sơ' },
                         ].map(t => {
                             const active = tab === t.id;
                             return (
-                                <button key={t.id} onClick={() => setTab(t.id)}
-                                    className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-[8px] text-[11px] font-bold transition-all ${active ? 'bg-[#2a2a2a] text-[#00ff88] shadow-sm' : 'text-[#666] hover:text-[#aaa]'}`}>
-                                    <t.icon size={13} />
+                                <button key={t.id} onClick={() => setTab(t.id as any)}
+                                    className={`shrink-0 min-w-[70px] flex-1 flex flex-col items-center justify-center gap-1 py-1.5 rounded-[8px] text-[10px] font-bold transition-all ${active ? 'bg-[#2a2a2a] text-[#00ff88] shadow-sm' : 'text-[#666] hover:text-[#aaa]'}`}>
+                                    <t.icon size={14} />
                                     <span>{t.label}</span>
                                 </button>
                             );
@@ -279,6 +283,20 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                             suggestions={suggestions}
                             onSuggestionsUpdate={refreshSuggestions}
                         />
+                    </div>
+                )}
+
+                {/* Tab: Body Metrics */}
+                {tab === 'metrics' && profile && (
+                    <div className="px-4">
+                        <BodyMetrics userId={userId} profile={profile} />
+                    </div>
+                )}
+
+                {/* Tab: Formulas Guide */}
+                {tab === 'formulas' && (
+                    <div className="px-4">
+                        <FormulasGuide />
                     </div>
                 )}
 

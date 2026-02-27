@@ -71,21 +71,34 @@ export const saveWeightLogs = (userId: string, logs: WeightLogEntry[]) => {
     localStorage.setItem(getStorageKey(userId, 'weight_logs'), JSON.stringify(logs));
 };
 
-export const addWeightLog = (userId: string, date: string, weight: number, bodyFatPercentage?: number) => {
+export const addWeightLog = (
+    userId: string,
+    date: string,
+    metrics: { weight: number, bodyFatPercentage?: number, waist?: number, hip?: number, muscleMass?: number }
+) => {
     const logs = loadWeightLogs(userId);
     const existingIndex = logs.findIndex(l => l.date === date);
+    const newLog: WeightLogEntry = { date, ...metrics };
+
     if (existingIndex >= 0) {
-        logs[existingIndex] = { date, weight, bodyFatPercentage };
+        logs[existingIndex] = newLog;
     } else {
-        logs.push({ date, weight, bodyFatPercentage });
+        logs.push(newLog);
         logs.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     }
     saveWeightLogs(userId, logs);
 
-    // Also update Profile current weight
+    // Also update Profile with latest metrics
     const profile = loadProfile(userId);
     if (profile) {
-        saveProfile(userId, { ...profile, weight, bodyFatPercentage });
+        saveProfile(userId, {
+            ...profile,
+            weight: metrics.weight,
+            bodyFatPercentage: metrics.bodyFatPercentage ?? profile.bodyFatPercentage,
+            waist: metrics.waist ?? profile.waist,
+            hip: metrics.hip ?? profile.hip,
+            muscleMass: metrics.muscleMass ?? profile.muscleMass
+        });
     }
 };
 

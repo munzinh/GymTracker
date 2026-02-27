@@ -15,6 +15,9 @@ export interface UserProfile {
     goal: GoalType;
     bodyFatPercentage?: number;
     leanMass?: number;
+    waist?: number; // cm
+    hip?: number; // cm
+    muscleMass?: number; // kg
     createdAt: string;
     updatedAt: string;
 }
@@ -57,6 +60,9 @@ export interface WeightLogEntry {
     date: string; // YYYY-MM-DD
     weight: number;
     bodyFatPercentage?: number;
+    waist?: number;
+    hip?: number;
+    muscleMass?: number;
 }
 
 export interface WeeklyAnalytics {
