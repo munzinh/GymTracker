@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-    Flame, Calendar, Target, Award, User, ChevronLeft, ChevronRight, CheckCircle2, Database, Dumbbell, LogOut, Activity, BookOpen, AlertTriangle, Menu, X
+    Flame, Calendar, Target, Award, User, ChevronLeft, ChevronRight, CheckCircle2, Database, Dumbbell, LogOut, Activity, BookOpen, AlertTriangle, Menu
 } from 'lucide-react';
 import type {
     UserProfile, DailyLog, MealSlotId, MealSlot, MacroSummary, MealItem
@@ -217,8 +217,8 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                     {/* Left: Logo & Menu */}
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => setIsSidebarOpen(true)}
-                            className="w-10 h-10 rounded-xl bg-[#1a1a1a] border border-[#333] flex items-center justify-center text-[#888] hover:text-[#00ff88] transition-all active:scale-95"
+                            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                            className={`w-10 h-10 rounded-xl bg-[#1a1a1a] border border-[#333] flex items-center justify-center transition-all active:scale-95 ${isSidebarOpen ? 'text-[#00ff88] border-[#00ff8830]' : 'text-[#888]'}`}
                         >
                             <Menu size={20} />
                         </button>
@@ -251,43 +251,19 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                         </button>
                     </div>
                 </div>
-            </div>
 
-            {/* SIDEBAR OVERLAY */}
-            {isSidebarOpen && (
-                <div className="fixed inset-0 z-[100] flex">
-                    {/* Backdrop */}
-                    <div
-                        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
-                        onClick={() => setIsSidebarOpen(false)}
-                    />
-
-                    {/* Sidebar Content */}
-                    <div className="relative w-72 h-full bg-[#0a0a0a] border-r border-[#222] shadow-2xl flex flex-col fade-in-left">
-                        <div className="p-6 flex items-center justify-between border-b border-[#1a1a1a]">
-                            <div className="flex items-center gap-2">
-                                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#00ff88]">
-                                    <Dumbbell size={18} className="text-black" />
-                                </div>
-                                <span className="font-black text-white text-lg tracking-tight">MENU</span>
-                            </div>
-                            <button
-                                onClick={() => setIsSidebarOpen(false)}
-                                className="w-8 h-8 rounded-lg bg-[#1a1a1a] flex items-center justify-center text-[#555] hover:text-white transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-
-                        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+                {/* DROPDOWN MENU (Absolute Overlay) */}
+                <div className={`absolute top-full left-0 right-0 z-50 overflow-hidden transition-all duration-300 cubic-bezier(0.16, 1, 0.3, 1) ${isSidebarOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                    <div className="mx-4 mt-2 p-3 bg-[#0a0a0a]/95 backdrop-blur-xl border border-[#222] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+                        <div className="grid grid-cols-1 gap-2">
                             {[
-                                { id: 'daily' as const, icon: Target, label: 'Tracking Nhật ký', desc: 'Ghi lại món ăn & calo' },
-                                { id: 'weekly' as const, icon: Award, label: 'Báo cáo Tiến độ', desc: 'Biểu đồ & Phân tích' },
-                                { id: 'metrics' as const, icon: Activity, label: 'Chỉ số Cơ thể', desc: 'InBody & Số đo' },
-                                { id: 'database' as const, icon: Database, label: 'Thực phẩm', desc: 'Tra cứu & Thêm món' },
-                                { id: 'formulas' as const, icon: BookOpen, label: 'Công thức', desc: 'Kiến thức khoa học' },
-                                { id: 'tools' as const, icon: BookOpen, label: 'Công cụ tính', desc: '20+ Máy tính thể hình' },
-                                { id: 'profile' as const, icon: User, label: 'Hồ sơ cá nhân', desc: 'Cài đặt mục tiêu' },
+                                { id: 'daily' as const, icon: Target, label: 'Tracking', desc: 'Nhật ký' },
+                                { id: 'weekly' as const, icon: Award, label: 'Báo cáo', desc: 'Tiến độ' },
+                                { id: 'metrics' as const, icon: Activity, label: 'Chỉ số', desc: 'InBody' },
+                                { id: 'database' as const, icon: Database, label: 'Thực phẩm', desc: 'Tra cứu' },
+                                { id: 'formulas' as const, icon: BookOpen, label: 'Công thức', desc: 'Khoa học' },
+                                { id: 'tools' as const, icon: BookOpen, label: 'Công cụ', desc: 'Máy tính' },
+                                { id: 'profile' as const, icon: User, label: 'Hồ sơ', desc: 'Mục tiêu' },
                             ].map(t => {
                                 const active = tab === t.id;
                                 return (
@@ -297,34 +273,35 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                                             setTab(t.id);
                                             setIsSidebarOpen(false);
                                         }}
-                                        className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group ${active
-                                                ? 'bg-[#00ff8810] border border-[#00ff8820]'
-                                                : 'hover:bg-[#111] border border-transparent'
+                                        className={`flex items-center gap-2.5 p-2 rounded-xl transition-all border ${active
+                                            ? 'bg-[#00ff8810] border-[#00ff8830] text-[#00ff88]'
+                                            : 'bg-[#161616] border-[#222] text-[#888] hover:bg-[#1a1a1a] hover:text-white'
                                             }`}
                                     >
-                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${active ? 'bg-[#00ff88] text-black shadow-[0_0_15px_rgba(0,255,136,0.3)]' : 'bg-[#1a1a1a] text-[#555] group-hover:text-white group-hover:bg-[#222]'
+                                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${active ? 'bg-[#00ff88] text-black shadow-[0_0_10px_rgba(0,255,136,0.3)]' : 'bg-[#222] text-[#555]'
                                             }`}>
-                                            <t.icon size={20} />
+                                            <t.icon size={16} />
                                         </div>
-                                        <div className="text-left">
-                                            <p className={`text-sm font-bold ${active ? 'text-[#00ff88]' : 'text-[#888] group-hover:text-white'}`}>{t.label}</p>
-                                            <p className="text-[10px] text-[#444] group-hover:text-[#666]">{t.desc}</p>
+                                        <div className="text-left overflow-hidden">
+                                            <p className="text-[11px] font-bold truncate leading-tight">{t.label}</p>
+                                            <p className="text-[9px] opacity-50 truncate">{t.desc}</p>
                                         </div>
                                     </button>
                                 );
                             })}
-                        </nav>
-
-                        <div className="p-4 border-t border-[#1a1a1a]">
-                            <div className="bg-[#111] p-4 rounded-2xl text-center">
-                                <p className="text-[10px] font-black tracking-widest text-[#00ff88]/50 uppercase mb-2">Developed by</p>
-                                <p className="text-white font-black text-sm">MUNZINH</p>
-                                <p className="text-[9px] text-[#444] mt-1">CUT LEAN FITNESS ENGINE v1.2</p>
-                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* BACKDROP FOR DROPDOWN */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px] transition-opacity duration-300 fade-in-backdrop"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
             )}
+
 
             {/* Main scrollable content area */}
             <div className="flex-1 space-y-3 pt-3">
