@@ -48,8 +48,24 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
     const [cat, setCat] = useState('');
     const [pickedId, setPickedId] = useState<string | null>(null);
     const [grams, setGrams] = useState(100);
+    const [baseServing, setBaseServing] = useState<{ label: string, grams: number } | null>(null);
+    const [multiplier, setMultiplier] = useState(1);
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const handleServingClick = (label: string, g: number) => {
+        setBaseServing({ label, grams: g });
+        setMultiplier(1);
+        setGrams(g);
+    };
+
+    const handleMultiplier = (delta: number) => {
+        if (baseServing) {
+            const newM = Math.max(0.5, multiplier + delta);
+            setMultiplier(newM);
+            setGrams(Math.round(newM * baseServing.grams));
+        }
+    };
 
     // Scroll to top when opening or changing filters
     useEffect(() => {
@@ -78,6 +94,8 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
             setPickedId(null);
         } else {
             setPickedId(food.id);
+            setBaseServing(null);
+            setMultiplier(1);
             setGrams(food.commonServingG ?? 100);
         }
     };
@@ -227,7 +245,7 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                                                     <div className="flex flex-col items-center gap-3">
                                                         <div className="flex items-center gap-6">
                                                             <button
-                                                                onClick={() => setGrams(g => Math.max(1, g - (g > 100 ? 50 : 10)))}
+                                                                onClick={() => { setBaseServing(null); setGrams(g => Math.max(1, g - (g > 100 ? 50 : 10))); }}
                                                                 className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-[#00ff88] active:text-black transition-all"
                                                             >
                                                                 <Minus size={20} />
@@ -236,13 +254,13 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                                                                 <input
                                                                     type="number"
                                                                     value={grams}
-                                                                    onChange={e => setGrams(Math.max(1, parseInt(e.target.value) || 0))}
+                                                                    onChange={e => { setBaseServing(null); setGrams(Math.max(1, parseInt(e.target.value) || 0)); }}
                                                                     className="w-24 text-center text-[42px] font-black text-white bg-transparent outline-none border-b-2 border-white/10 focus:border-[#00ff88] transition-colors"
                                                                 />
                                                                 <span className="text-[#444] font-black text-xl">g</span>
                                                             </div>
                                                             <button
-                                                                onClick={() => setGrams(g => g + (g >= 100 ? 50 : 10))}
+                                                                onClick={() => { setBaseServing(null); setGrams(g => g + (g >= 100 ? 50 : 10)); }}
                                                                 className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white active:bg-[#00ff88] active:text-black transition-all"
                                                             >
                                                                 <Plus size={20} />
@@ -257,28 +275,55 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                                                                 <div className="h-[1px] flex-1 bg-white/5" />
                                                             </div>
                                                             <div className="flex flex-wrap gap-2 justify-center">
-                                                                {food.servings?.map(s => (
-                                                                    <button
-                                                                        key={s.label}
-                                                                        onClick={() => setGrams(s.grams)}
-                                                                        className={`px - 4 py - 2.5 rounded - xl border text - [11px] font - black transition - all ${grams === s.grams
-                                                                            ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
-                                                                            : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
-                                                                            }`}
-                                                                    >
-                                                                        {s.label}
-                                                                    </button>
-                                                                ))}
+                                                                {food.servings?.map(s => {
+                                                                    const isActive = baseServing?.label === s.label;
+                                                                    return isActive ? (
+                                                                        <div key={s.label} className="flex items-center gap-3 px-3 py-1.5 rounded-xl border border-[#00ff88] bg-[#00ff8815]">
+                                                                            <button onClick={() => handleMultiplier(-1)} className="w-6 h-6 rounded-full bg-[#00ff8833] flex items-center justify-center text-[#00ff88] hover:bg-[#00ff88] hover:text-black transition-colors">
+                                                                                <Minus size={12} strokeWidth={3} />
+                                                                            </button>
+                                                                            <span className="text-[12px] font-black text-[#00ff88] min-w-[3rem] text-center">
+                                                                                {multiplier === 1 ? s.label : `x${multiplier} (${s.label})`}
+                                                                            </span>
+                                                                            <button onClick={() => handleMultiplier(1)} className="w-6 h-6 rounded-full bg-[#00ff8833] flex items-center justify-center text-[#00ff88] hover:bg-[#00ff88] hover:text-black transition-colors">
+                                                                                <Plus size={12} strokeWidth={3} />
+                                                                            </button>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <button
+                                                                            key={s.label}
+                                                                            onClick={() => handleServingClick(s.label, s.grams)}
+                                                                            className="px-4 py-2.5 rounded-xl border text-[11px] font-black transition-all bg-white/5 border-transparent text-[#666] hover:text-[#aaa]"
+                                                                        >
+                                                                            {s.label}
+                                                                        </button>
+                                                                    );
+                                                                })}
                                                                 {!food.servings && food.commonServingG && (
-                                                                    <button
-                                                                        onClick={() => setGrams(food.commonServingG!)}
-                                                                        className={`px-4 py-2.5 rounded-xl border text-[11px] font-black transition-all ${grams === food.commonServingG
-                                                                            ? 'bg-[#00ff8815] border-[#00ff88] text-[#00ff88]'
-                                                                            : 'bg-white/5 border-transparent text-[#666] hover:text-[#aaa]'
-                                                                            }`}
-                                                                    >
-                                                                        {food.servingLabel || '1 Phần'}
-                                                                    </button>
+                                                                    (() => {
+                                                                        const label = food.servingLabel || '1 Phần';
+                                                                        const isActive = baseServing?.label === label;
+                                                                        return isActive ? (
+                                                                            <div className="flex items-center gap-3 px-3 py-1.5 rounded-xl border border-[#00ff88] bg-[#00ff8815]">
+                                                                                <button onClick={() => handleMultiplier(-1)} className="w-6 h-6 rounded-full bg-[#00ff8833] flex items-center justify-center text-[#00ff88] hover:bg-[#00ff88] hover:text-black transition-colors">
+                                                                                    <Minus size={12} strokeWidth={3} />
+                                                                                </button>
+                                                                                <span className="text-[12px] font-black text-[#00ff88] min-w-[3rem] text-center">
+                                                                                    {multiplier === 1 ? label : `x${multiplier} (${label})`}
+                                                                                </span>
+                                                                                <button onClick={() => handleMultiplier(1)} className="w-6 h-6 rounded-full bg-[#00ff8833] flex items-center justify-center text-[#00ff88] hover:bg-[#00ff88] hover:text-black transition-colors">
+                                                                                    <Plus size={12} strokeWidth={3} />
+                                                                                </button>
+                                                                            </div>
+                                                                        ) : (
+                                                                            <button
+                                                                                onClick={() => handleServingClick(label, food.commonServingG!)}
+                                                                                className="px-4 py-2.5 rounded-xl border text-[11px] font-black transition-all bg-white/5 border-transparent text-[#666] hover:text-[#aaa]"
+                                                                            >
+                                                                                {label}
+                                                                            </button>
+                                                                        );
+                                                                    })()
                                                                 )}
                                                             </div>
 
@@ -286,8 +331,8 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                                                                 {QUICK_GRAMS.filter(p => p !== food.commonServingG && !food.servings?.some(s => s.grams === p)).map(p => (
                                                                     <button
                                                                         key={p}
-                                                                        onClick={() => setGrams(p)}
-                                                                        className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${grams === p
+                                                                        onClick={() => { setBaseServing(null); setGrams(p); }}
+                                                                        className={`px-3 py-1.5 rounded-lg border text-[10px] font-bold transition-all ${(!baseServing && grams === p)
                                                                             ? 'bg-white/10 border-white/20 text-white'
                                                                             : 'bg-transparent border-white/5 text-[#444]'
                                                                             }`}

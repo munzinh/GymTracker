@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import {
-    Flame, Calendar, Target, Award, User, ChevronLeft, ChevronRight, CheckCircle2, Database, Dumbbell, LogOut, Activity, BookOpen
+    Flame, Calendar, Target, Award, User, ChevronLeft, ChevronRight, CheckCircle2, Database, Dumbbell, LogOut, Activity, BookOpen, AlertTriangle, Menu, X
 } from 'lucide-react';
 import type {
     UserProfile, DailyLog, MealSlotId, MealSlot, MacroSummary, MealItem
@@ -8,9 +8,9 @@ import type {
 import type { FoodItem } from './foodDatabase';
 import {
     loadProfile, saveProfile, loadDailyLogs, saveDailyLogs, createEmptyDailyLog,
-    getTodayStr, loadGamification, loadSuggestions, loadWeightLogs
+    getTodayStr, loadGamification, loadWeightLogs
 } from '../../utils/storage';
-import { updateDailyStreak, checkBadges, generateCoachingSuggestions } from '../../utils/coachingEngine';
+import { updateDailyStreak, checkBadges } from '../../utils/coachingEngine';
 import { calcMacroTargets, calcNutrition } from '../../utils/nutritionMath';
 
 // UI Components
@@ -22,6 +22,7 @@ import { WeeklyAnalytics } from './WeeklyAnalytics';
 import { FoodDatabaseManager } from './FoodDatabaseManager';
 import { BodyMetrics } from './BodyMetrics';
 import { FormulasGuide } from './FormulasGuide';
+import { MegaCalculator } from './MegaCalculator';
 
 // Helpers
 function sumEntries(entries: MealItem[]): MacroSummary {
@@ -48,16 +49,16 @@ function sumAllMeals(slots: Record<MealSlotId, MealSlot>): MacroSummary {
 
 export function NutritionHub({ currentUser, onLogout }: { currentUser: import('../../App').CurrentUser, onLogout: () => void }) {
     const userId = currentUser.id;
-    const [tab, setTab] = useState<'daily' | 'weekly' | 'metrics' | 'database' | 'formulas' | 'profile'>('daily');
+    const [tab, setTab] = useState<'daily' | 'weekly' | 'metrics' | 'database' | 'formulas' | 'profile' | 'tools'>('daily');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Core state
     const [profile, setProfile] = useState<UserProfile | null>(() => loadProfile(userId));
     const [dailyLogs, setDailyLogs] = useState<DailyLog[]>(() => loadDailyLogs(userId));
     const [selectedDate, setSelectedDate] = useState(getTodayStr());
 
-    // Gamification & Coaching
+    // Gamification
     const [gamification, setGamification] = useState(() => loadGamification(userId));
-    const [suggestions, setSuggestions] = useState(() => loadSuggestions(userId));
     const [weightLogs, setWeightLogs] = useState(() => loadWeightLogs(userId));
 
     // Mount logic: Run coaching engine and streak logic
@@ -75,8 +76,6 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
 
             const wLogs = loadWeightLogs(userId);
             setWeightLogs(wLogs);
-            generateCoachingSuggestions(userId, p, l, wLogs);
-            setSuggestions(loadSuggestions(userId));
         }
     }, [userId]);
 
@@ -100,7 +99,7 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
 
     const dailyTotals = useMemo(() => sumAllMeals(liveMeals), [liveMeals]);
 
-    // Reactive Targets based on profile
+    // Reactive Targets
     const targets: MacroSummary | null = profile ? calcMacroTargets(profile) : null;
 
     // Handlers
@@ -121,60 +120,72 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
     };
 
     const addToMeal = (slotId: MealSlotId, food: FoodItem, grams: number) => {
-        setLiveMeals(prev => ({
-            ...prev,
-            [slotId]: {
-                ...prev[slotId],
-                items: [...prev[slotId].items, {
-                    id: Date.now().toString(),
-                    foodId: food.id,
-                    name: food.nameVi || food.name,
-                    grams,
-                    macros: calcNutrition(food, grams),
-                    food
-                } as any]
-            }
-        }));
+        setLiveMeals(prev => {
+            const next = {
+                ...prev,
+                [slotId]: {
+                    ...prev[slotId],
+                    items: [...prev[slotId].items, {
+                        id: Date.now().toString(),
+                        foodId: food.id,
+                        name: food.nameVi || food.name,
+                        grams,
+                        macros: calcNutrition(food, grams),
+                        food
+                    } as any]
+                }
+            };
+            saveLatestMeals(next);
+            return next;
+        });
     };
 
     const removeFromMeal = (slotId: MealSlotId, itemId: string) => {
-        setLiveMeals(prev => ({
-            ...prev,
-            [slotId]: {
-                ...prev[slotId],
-                items: prev[slotId].items.filter(i => i.id !== itemId)
-            }
-        }));
+        setLiveMeals(prev => {
+            const next = {
+                ...prev,
+                [slotId]: {
+                    ...prev[slotId],
+                    items: prev[slotId].items.filter(i => i.id !== itemId)
+                }
+            };
+            saveLatestMeals(next);
+            return next;
+        });
     };
 
     const [savedFeedback, setSavedFeedback] = useState(false);
-    const handleSaveDay = () => {
+
+    // Auto-save helper
+    const saveLatestMeals = (updatedMeals: Record<MealSlotId, MealSlot>) => {
         if (!targets) return;
 
         // Ensure slot totals are updated
-        const updatedMeals = { ...liveMeals };
         (Object.keys(updatedMeals) as MealSlotId[]).forEach(k => {
             updatedMeals[k].totals = sumEntries((updatedMeals[k] as any).items);
         });
+
+        const latestTotals = sumAllMeals(updatedMeals);
 
         const newLog: DailyLog = {
             id: selectedDate,
             userId,
             date: selectedDate,
             meals: updatedMeals,
-            dailyTotals,
+            dailyTotals: latestTotals,
             targets
         };
 
-        const updatedLogs = [...dailyLogs.filter(l => l.date !== selectedDate), newLog];
-        saveDailyLogs(userId, updatedLogs);
-        setDailyLogs(updatedLogs);
-
-        // Also update streak if saving today's log
-        if (selectedDate === getTodayStr()) {
-            updateDailyStreak(userId, newLog);
-            setGamification(loadGamification(userId));
-        }
+        setDailyLogs(prevLogs => {
+            const updatedLogs = [...prevLogs.filter(l => l.date !== selectedDate), newLog];
+            saveDailyLogs(userId, updatedLogs);
+            // Also update streak if saving today's log
+            if (selectedDate === getTodayStr()) {
+                updateDailyStreak(userId, newLog);
+                setGamification(loadGamification(userId));
+            }
+            return updatedLogs;
+        });
 
         setSavedFeedback(true);
         setTimeout(() => setSavedFeedback(false), 2000);
@@ -185,8 +196,6 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
         d.setDate(d.getDate() + dir);
         setSelectedDate(d.toISOString().slice(0, 10));
     };
-
-    const refreshSuggestions = () => setSuggestions(loadSuggestions(userId));
 
     const isToday = selectedDate === getTodayStr();
 
@@ -204,56 +213,118 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
             {/* UNIFIED DASHBOARD HEADER (Sticky) */}
             <div className="sticky top-0 z-50 bg-[#111]/95 backdrop-blur-lg border-b border-[#222]">
                 {/* Row 1: Logo & User Stats */}
-                <div className="flex items-center justify-between px-4 py-2.5">
-                    {/* Left: Logo */}
-                    <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-md flex items-center justify-center"
-                            style={{ background: 'linear-gradient(135deg, #00ff88, #00cc6a)' }}>
-                            <Dumbbell size={14} className="text-black" />
+                <div className="flex items-center justify-between px-4 py-3">
+                    {/* Left: Logo & Menu */}
+                    <div className="flex items-center gap-3">
+                        <button
+                            onClick={() => setIsSidebarOpen(true)}
+                            className="w-10 h-10 rounded-xl bg-[#1a1a1a] border border-[#333] flex items-center justify-center text-[#888] hover:text-[#00ff88] transition-all active:scale-95"
+                        >
+                            <Menu size={20} />
+                        </button>
+                        <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+                                style={{ background: 'linear-gradient(135deg, #00ff88, #00cc6a)' }}>
+                                <Dumbbell size={16} className="text-black" />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-bold text-sm tracking-tight text-white leading-none">
+                                    <span className="text-[#00ff88]" style={{ textShadow: '0 0 10px rgba(0, 255, 136, 0.5)' }}>CUT</span>
+                                    <span className="ml-1">LEAN</span>
+                                </span>
+                                <span className="text-[8px] font-black tracking-widest text-[#00ff88]/70 uppercase mt-0.5">
+                                    Made by Munzinh
+                                </span>
+                            </div>
                         </div>
-                        <span className="font-bold text-sm tracking-tight text-white">
-                            <span className="text-[#00ff88]" style={{ textShadow: '0 0 10px rgba(0, 255, 136, 0.5)' }}>CUT</span>
-                            <span className="ml-1">LEAN</span>
-                        </span>
                     </div>
 
                     {/* Right: User Gamification & Logout */}
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
                         <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1a1a1a] border border-[#333]">
-                            <span className="text-[11px] font-bold text-white">{gamification.levelTitle}</span>
                             <span className="flex items-center text-[10px] font-bold text-[#ffb800]">
-                                <Flame size={10} className="mr-0.5" />{gamification.currentStreak}d
+                                <Flame size={12} className="mr-0.5" />{gamification.currentStreak}d
                             </span>
                         </div>
-                        <button onClick={onLogout} className="p-1.5 rounded-md text-[#ff4444] hover:bg-[#ff444420] transition-colors" aria-label="Đăng xuất">
-                            <LogOut size={16} />
+                        <button onClick={onLogout} className="w-9 h-9 flex items-center justify-center rounded-xl text-[#ff4444] hover:bg-[#ff444415] transition-colors" aria-label="Đăng xuất">
+                            <LogOut size={18} />
                         </button>
                     </div>
                 </div>
+            </div>
 
-                {/* Row 2: Segmented Navigation Tabs */}
-                <div className="px-4 pb-2.5">
-                    <div className="flex bg-[#181818] rounded-[10px] p-0.5 border border-[#2a2a2a] overflow-x-auto hide-scrollbar">
-                        {[
-                            { id: 'daily' as const, icon: Target, label: 'Tracking' },
-                            { id: 'weekly' as const, icon: Award, label: 'Báo cáo' },
-                            { id: 'metrics' as const, icon: Activity, label: 'Chỉ số' },
-                            { id: 'database' as const, icon: Database, label: 'Database' },
-                            { id: 'formulas' as const, icon: BookOpen, label: 'Công thức' },
-                            { id: 'profile' as const, icon: User, label: 'Hồ sơ' },
-                        ].map(t => {
-                            const active = tab === t.id;
-                            return (
-                                <button key={t.id} onClick={() => setTab(t.id as any)}
-                                    className={`shrink-0 min-w-[70px] flex-1 flex flex-col items-center justify-center gap-1 py-1.5 rounded-[8px] text-[10px] font-bold transition-all ${active ? 'bg-[#2a2a2a] text-[#00ff88] shadow-sm' : 'text-[#666] hover:text-[#aaa]'}`}>
-                                    <t.icon size={14} />
-                                    <span>{t.label}</span>
-                                </button>
-                            );
-                        })}
+            {/* SIDEBAR OVERLAY */}
+            {isSidebarOpen && (
+                <div className="fixed inset-0 z-[100] flex">
+                    {/* Backdrop */}
+                    <div
+                        className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
+                        onClick={() => setIsSidebarOpen(false)}
+                    />
+
+                    {/* Sidebar Content */}
+                    <div className="relative w-72 h-full bg-[#0a0a0a] border-r border-[#222] shadow-2xl flex flex-col fade-in-left">
+                        <div className="p-6 flex items-center justify-between border-b border-[#1a1a1a]">
+                            <div className="flex items-center gap-2">
+                                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[#00ff88]">
+                                    <Dumbbell size={18} className="text-black" />
+                                </div>
+                                <span className="font-black text-white text-lg tracking-tight">MENU</span>
+                            </div>
+                            <button
+                                onClick={() => setIsSidebarOpen(false)}
+                                className="w-8 h-8 rounded-lg bg-[#1a1a1a] flex items-center justify-center text-[#555] hover:text-white transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+
+                        <nav className="flex-1 overflow-y-auto p-4 space-y-2">
+                            {[
+                                { id: 'daily' as const, icon: Target, label: 'Tracking Nhật ký', desc: 'Ghi lại món ăn & calo' },
+                                { id: 'weekly' as const, icon: Award, label: 'Báo cáo Tiến độ', desc: 'Biểu đồ & Phân tích' },
+                                { id: 'metrics' as const, icon: Activity, label: 'Chỉ số Cơ thể', desc: 'InBody & Số đo' },
+                                { id: 'database' as const, icon: Database, label: 'Thực phẩm', desc: 'Tra cứu & Thêm món' },
+                                { id: 'formulas' as const, icon: BookOpen, label: 'Công thức', desc: 'Kiến thức khoa học' },
+                                { id: 'tools' as const, icon: BookOpen, label: 'Công cụ tính', desc: '20+ Máy tính thể hình' },
+                                { id: 'profile' as const, icon: User, label: 'Hồ sơ cá nhân', desc: 'Cài đặt mục tiêu' },
+                            ].map(t => {
+                                const active = tab === t.id;
+                                return (
+                                    <button
+                                        key={t.id}
+                                        onClick={() => {
+                                            setTab(t.id);
+                                            setIsSidebarOpen(false);
+                                        }}
+                                        className={`w-full flex items-center gap-4 p-4 rounded-2xl transition-all group ${active
+                                                ? 'bg-[#00ff8810] border border-[#00ff8820]'
+                                                : 'hover:bg-[#111] border border-transparent'
+                                            }`}
+                                    >
+                                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${active ? 'bg-[#00ff88] text-black shadow-[0_0_15px_rgba(0,255,136,0.3)]' : 'bg-[#1a1a1a] text-[#555] group-hover:text-white group-hover:bg-[#222]'
+                                            }`}>
+                                            <t.icon size={20} />
+                                        </div>
+                                        <div className="text-left">
+                                            <p className={`text-sm font-bold ${active ? 'text-[#00ff88]' : 'text-[#888] group-hover:text-white'}`}>{t.label}</p>
+                                            <p className="text-[10px] text-[#444] group-hover:text-[#666]">{t.desc}</p>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </nav>
+
+                        <div className="p-4 border-t border-[#1a1a1a]">
+                            <div className="bg-[#111] p-4 rounded-2xl text-center">
+                                <p className="text-[10px] font-black tracking-widest text-[#00ff88]/50 uppercase mb-2">Developed by</p>
+                                <p className="text-white font-black text-sm">MUNZINH</p>
+                                <p className="text-[9px] text-[#444] mt-1">CUT LEAN FITNESS ENGINE v1.2</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Main scrollable content area */}
             <div className="flex-1 space-y-3 pt-3">
@@ -280,8 +351,6 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                             profile={profile}
                             logs={dailyLogs}
                             weightLogs={weightLogs}
-                            suggestions={suggestions}
-                            onSuggestionsUpdate={refreshSuggestions}
                         />
                     </div>
                 )}
@@ -289,7 +358,15 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                 {/* Tab: Body Metrics */}
                 {tab === 'metrics' && profile && (
                     <div className="px-4">
-                        <BodyMetrics userId={userId} profile={profile} />
+                        <BodyMetrics
+                            userId={userId}
+                            profile={profile}
+                            selectedDate={selectedDate}
+                            onDateChange={setSelectedDate}
+                            onUpdate={() => {
+                                setProfile(loadProfile(userId));
+                            }}
+                        />
                     </div>
                 )}
 
@@ -300,9 +377,31 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                     </div>
                 )}
 
+                {/* Tab: MegaCalculator (Công cụ) */}
+                {tab === 'tools' && (
+                    <div className="px-4 pb-8">
+                        <MegaCalculator profile={profile} />
+                    </div>
+                )}
+
                 {/* Tab: Daily Tracking */}
                 {tab === 'daily' && targets && (
                     <div className="px-4 space-y-3 fade-in">
+                        {/* Surplus Alert */}
+                        {dailyTotals.calories > targets.calories && (
+                            <div className="bg-[#ff444410] border border-[#ff444433] rounded-2xl p-4 flex items-start gap-3 shadow-lg">
+                                <div className="p-2 bg-[#ff444422] rounded-xl text-[#ff4444]">
+                                    <AlertTriangle size={18} />
+                                </div>
+                                <div>
+                                    <h4 className="text-[11px] font-black text-[#ff4444] uppercase tracking-wider mb-1">Cảnh báo: Vượt mức Calo!</h4>
+                                    <p className="text-xs text-[#aaa] leading-relaxed font-medium">
+                                        Bạn đã nạp dư <span className="text-white font-bold">{Math.round(dailyTotals.calories - targets.calories)} kcal</span>.
+                                        Đừng quá lo lắng, hãy chủ động cắt giảm <span className="text-[#00ff88] font-bold">150-200 kcal</span> vào thực đơn ngày mai để bù đắp nhé!
+                                    </p>
+                                </div>
+                            </div>
+                        )}
 
                         {/* Date Navigator */}
                         <div className="flex justify-between items-center bg-[#111] p-1.5 rounded-xl border border-[#222]">
@@ -328,7 +427,7 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                         </div>
 
                         {/* Macro Bars */}
-                        <MacroBars current={dailyTotals} target={targets} />
+                        <MacroBars current={dailyTotals} target={targets} bodyWeight={profile.weight} />
 
                         {/* Meal Slots array */}
                         <div className="space-y-3">
@@ -345,16 +444,12 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                             ))}
                         </div>
 
-                        {/* Check if anything is logged to display Save Button */}
-                        {(Object.keys(liveMeals) as MealSlotId[]).some(k => liveMeals[k]?.items.length > 0) && (
-                            <button
-                                onClick={handleSaveDay}
-                                className="w-full py-4 text-center rounded-xl font-bold text-sm transition-all text-black shadow-lg"
-                                style={{ background: savedFeedback ? '#00e5ff' : 'linear-gradient(135deg, #00ff88, #00cc6a)' }}
-                            >
-                                {savedFeedback ? <span className="flex items-center justify-center gap-2"><CheckCircle2 size={18} /> Đã lưu ngày {selectedDate}!</span> : 'Lưu Nhật ký Ngày'}
-                            </button>
-                        )}
+                        {/* Save feedback toast (shows briefly when auto-saving) */}
+                        <div className={`fixed bottom-24 left-1/2 -translate-x-1/2 z-50 transition-all duration-300 pointer-events-none ${savedFeedback ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                            <div className="bg-[#00ff88] text-black text-sm font-bold px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+                                <CheckCircle2 size={16} /> Đã lưu!
+                            </div>
+                        </div>
 
                     </div>
                 )}

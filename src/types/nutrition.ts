@@ -14,10 +14,33 @@ export interface UserProfile {
     activityLevel: ActivityLevel;
     goal: GoalType;
     bodyFatPercentage?: number;
+    targetBodyFatPercentage?: number;
     leanMass?: number;
     waist?: number; // cm
     hip?: number; // cm
+    chest?: number; // cm
+    leftArm?: number; // cm
+    rightArm?: number; // cm
+    leftThigh?: number; // cm
+    rightThigh?: number; // cm
     muscleMass?: number; // kg
+    visceralFat?: number; // Level
+    neck?: number; // cm
+    forearm?: number; // cm
+    calves?: number; // cm
+    shoulders?: number; // cm
+    // Segmental Lean Mass (kg)
+    leftArmMuscle?: number;
+    rightArmMuscle?: number;
+    trunkMuscle?: number;
+    leftLegMuscle?: number;
+    rightLegMuscle?: number;
+    // Segmental Fat (kg)
+    leftArmFat?: number;
+    rightArmFat?: number;
+    trunkFat?: number;
+    leftLegFat?: number;
+    rightLegFat?: number;
     createdAt: string;
     updatedAt: string;
 }
@@ -62,7 +85,29 @@ export interface WeightLogEntry {
     bodyFatPercentage?: number;
     waist?: number;
     hip?: number;
+    chest?: number;
+    leftArm?: number;
+    rightArm?: number;
+    leftThigh?: number;
+    rightThigh?: number;
+    visceralFat?: number;
     muscleMass?: number;
+    neck?: number;
+    forearm?: number;
+    calves?: number;
+    shoulders?: number;
+    // Segmental Lean Mass (kg)
+    leftArmMuscle?: number;
+    rightArmMuscle?: number;
+    trunkMuscle?: number;
+    leftLegMuscle?: number;
+    rightLegMuscle?: number;
+    // Segmental Fat (kg)
+    leftArmFat?: number;
+    rightArmFat?: number;
+    trunkFat?: number;
+    leftLegFat?: number;
+    rightLegFat?: number;
 }
 
 export interface WeeklyAnalytics {

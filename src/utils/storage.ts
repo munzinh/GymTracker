@@ -2,7 +2,6 @@ import type {
     UserProfile,
     DailyLog,
     WeightLogEntry,
-    AdaptiveSuggestion,
     GamificationState,
 } from '../types/nutrition';
 
@@ -70,18 +69,17 @@ export const loadWeightLogs = (userId: string): WeightLogEntry[] => {
 export const saveWeightLogs = (userId: string, logs: WeightLogEntry[]) => {
     localStorage.setItem(getStorageKey(userId, 'weight_logs'), JSON.stringify(logs));
 };
-
 export const addWeightLog = (
     userId: string,
     date: string,
-    metrics: { weight: number, bodyFatPercentage?: number, waist?: number, hip?: number, muscleMass?: number }
+    metrics: Partial<WeightLogEntry> & { weight: number }
 ) => {
     const logs = loadWeightLogs(userId);
     const existingIndex = logs.findIndex(l => l.date === date);
-    const newLog: WeightLogEntry = { date, ...metrics };
+    const newLog: WeightLogEntry = { date, ...metrics } as WeightLogEntry;
 
     if (existingIndex >= 0) {
-        logs[existingIndex] = newLog;
+        logs[existingIndex] = { ...logs[existingIndex], ...newLog };
     } else {
         logs.push(newLog);
         logs.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -93,30 +91,13 @@ export const addWeightLog = (
     if (profile) {
         saveProfile(userId, {
             ...profile,
-            weight: metrics.weight,
-            bodyFatPercentage: metrics.bodyFatPercentage ?? profile.bodyFatPercentage,
-            waist: metrics.waist ?? profile.waist,
-            hip: metrics.hip ?? profile.hip,
-            muscleMass: metrics.muscleMass ?? profile.muscleMass
-        });
+            ...metrics,
+            updatedAt: getTodayStr()
+        } as UserProfile);
     }
 };
 
-// --- Adaptive Suggestions ---
-export const loadSuggestions = (userId: string): AdaptiveSuggestion[] => {
-    const data = localStorage.getItem(getStorageKey(userId, 'suggestions'));
-    return data ? JSON.parse(data) : [];
-};
 
-export const saveSuggestions = (userId: string, suggestions: AdaptiveSuggestion[]) => {
-    localStorage.setItem(getStorageKey(userId, 'suggestions'), JSON.stringify(suggestions));
-};
-
-export const markSuggestionRead = (userId: string, suggestionId: string) => {
-    const s = loadSuggestions(userId);
-    const updated = s.map(x => x.id === suggestionId ? { ...x, status: 'read' as const } : x);
-    saveSuggestions(userId, updated);
-};
 
 // --- Gamification ---
 export const loadGamification = (userId: string): GamificationState => {
