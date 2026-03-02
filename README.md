@@ -1,73 +1,55 @@
-# React + TypeScript + Vite
+# 🏋️‍♂️ GymTracker - Công cụ theo dõi tập luyện & dinh dưỡng
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+GymTracker là ứng dụng web hiện đại giúp bạn theo dõi quá trình tập luyện, tính toán dinh dưỡng và quản lý mục tiêu hình thể một cách khoa học. Được thiết kế tối ưu cho trải nghiệm di động, tập trung vào sự tối giản và hiệu quả.
 
-Currently, two official plugins are available:
+🚀 **Xem bản live tại đây:** [https://munzinh.github.io/GymTracker](https://munzinh.github.io/GymTracker)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## React Compiler
+## ✨ Tính năng chính
+- 📊 **Dashboard thông minh**: Theo dõi calo, macros và tiến độ tập luyện hàng ngày.
+- 🍱 **Quản lý dinh dưỡng (Nutrition Hub)**: Tìm kiếm và thêm món ăn từ cơ sở dữ liệu phong phú hoặc tự thêm món mới.
+- 📈 **Báo cáo InBody**: Lưu trữ và phân tích các chỉ số cơ thể (Cân nặng, Tỉ lệ mỡ, Khối lượng cơ).
+- ⚙️ **Công cụ tính toán**: Tích hợp các công thức TDEE, Macro targets và Fitness Score.
+- 🌑 **Giao diện hiện đại**: Dark mode với hiệu ứng neon green và Glassmorphism cao cấp.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🆕 Bản cập nhật mới nhất
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### 1. Menu điều hướng Floating (Overlay Menu)
+- Thay thế sidebar cũ bằng menu dạng lớp phủ (overlay) hiện đại.
+- Hiệu ứng đổ bóng mờ (shadow opening), backdrop-blur và micro-animations mượt mà.
+- Thiết kế 2 cột giúp thao tác nhanh và tối ưu diện tích màn hình.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### 2. Tích hợp Thêm món nhanh (Quick Food Add)
+- Nút "Thêm nhanh" (+) được tích hợp ngay trong Modal tìm kiếm thức ăn.
+- Cho phép người dùng tạo ngay món ăn mới khi không tìm thấy trong database.
+- Tự động chọn món vừa tạo để thêm vào bữa ăn, giúp tiết kiệm thao tác.
+- Cải thiện trạng thái "Không tìm thấy kết quả" với gợi ý tự thêm món.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### 3. Tối ưu hóa hệ thống & UI/UX
+- Sửa các lỗi Build TypeScript và lỗi cú pháp trong các component cốt lõi.
+- Điều chỉnh khoảng cách và bố cục menu giúp giao diện thoáng đãng và dễ nhìn hơn.
+- Hiệu ứng Focus và Hover mượt mà trên toàn bộ các nút bấm và input.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🛠 Công nghệ sử dụng
+- **Core**: React 19 + TypeScript
+- **Bundler**: Vite
+- **Styling**: Tailwind CSS 4
+- **Icons**: Lucide React
+- **Data**: LocalStorage (Không cần database backend, bảo mật dữ liệu cá nhân)
+- **Deployment**: GitHub Pages
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🏃‍♂️ Chạy Project locally
+1. Clone repo: `git clone https://github.com/munzinh/GymTracker.git`
+2. Cài đặt dependencies: `npm install`
+3. Chạy dev server: `npm run dev`
+4. Build bản production: `npm run build`
+
+---
+Copyright © 2026 **By Munzinh**
