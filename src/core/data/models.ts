@@ -66,6 +66,10 @@ export interface TrendAnalysis {
             rightLegFat?: number;
         };
     };
+    workoutInsight?: {
+        type: 'positive' | 'warning' | 'neutral';
+        message: string;
+    };
 }
 
 export interface ActionPlan {

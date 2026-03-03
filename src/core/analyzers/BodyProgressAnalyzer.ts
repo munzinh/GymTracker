@@ -4,7 +4,8 @@ import type { TrendAnalysis } from '../data/models';
 export function analyzeBodyProgress(
     weightLogs: WeightLogEntry[],
     profile: UserProfile,
-    recentLogs: DailyLog[] = []
+    recentLogs: DailyLog[] = [],
+    workoutSessions: import('../../types/workout').WorkoutSession[] = []
 ): TrendAnalysis {
     const sortedLogs = [...weightLogs].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     const latest = sortedLogs[sortedLogs.length - 1];
@@ -95,6 +96,27 @@ export function analyzeBodyProgress(
         };
     }
 
+    // 5. Workout & Body Comp Integration
+    let workoutInsight;
+    const recentWorkouts = workoutSessions.filter(l => new Date(l.date) >= twoWeeksAgo && l.status === 'completed');
+
+    if (recentWorkouts.length >= 6 && muscleDiff >= 0) {
+        workoutInsight = {
+            type: 'positive' as const,
+            message: "Bạn đang tập rất đều đặn và giữ được lượng cơ bắp tốt. Cứ tiếp tục nhé!"
+        };
+    } else if (recentWorkouts.length < 3 && muscleDropInWindow > 0.5) {
+        workoutInsight = {
+            type: 'warning' as const,
+            message: "Có vẻ bạn đang bỏ tập khá nhiều và bắt đầu giảm cơ. Hãy cố gắng duy trì 2-3 buổi/tuần."
+        };
+    } else if (recentWorkouts.length >= 3 && muscleDiff < -0.2 && profile.goal === 'cut') {
+        workoutInsight = {
+            type: 'warning' as const,
+            message: "Bạn có tập nhưng vẫn giảm cơ. Hãy xem lại cường độ tập hoặc tăng thêm Protein!"
+        };
+    }
+
     return {
         weightTrend: weightDiff > 0.5 ? 'increasing' : weightDiff < -0.5 ? 'decreasing' : 'stable',
         muscleTrend: muscleDiff > 0.2 ? 'increasing' : muscleDiff < -0.2 ? 'decreasing' : 'stable',
@@ -103,6 +125,7 @@ export function analyzeBodyProgress(
         muscleLossWarning,
         fatLossProjection,
         deficitRisk,
+        workoutInsight,
         diffs: {
             weight: weightDiff,
             muscle: muscleDiff,

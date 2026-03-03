@@ -1,12 +1,10 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Activity, Plus, X, Zap, Target, ChevronLeft, ChevronRight, Calendar, Edit2 } from 'lucide-react';
+import { Plus, Zap, ChevronLeft, ChevronRight, Activity, Edit2, X, Calendar } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 import type { UserProfile, WeightLogEntry } from '../../types/nutrition';
 import { loadWeightLogs, addWeightLog, getTodayStr } from '../../utils/storage';
 import { calcBMI } from '../../utils/nutritionMath';
 import { calculateFitnessScore } from '../../core/engine/FitnessScorer';
-import { determinePhase } from '../../core/engine/PhaseDetector';
-import { analyzeBodyTrends } from '../../core/analyzers/BodyAnalyzer';
 import type { BodyMetrics as BodyMetricsModel } from '../../core/data/models';
 
 export function BodyMetrics({
@@ -135,26 +133,17 @@ export function BodyMetrics({
         recordedAt: l.date
     }));
 
-    const trends = analyzeBodyTrends(metricsLogs);
     const currentMetrics = metricsLogs.length > 0
         ? metricsLogs[metricsLogs.length - 1]
         : { weight: profile.weight, height: profile.height, recordedAt: getTodayStr() } as BodyMetricsModel;
 
     // Central Intelligence Scoring
     const fitnessScore = calculateFitnessScore(currentMetrics, profile.sex);
-    const phase = determinePhase(profile.goal, currentMetrics, trends, profile.sex);
+
 
     // weightControl logic moved to Engine Action Plan in NutritionHub
     // Using simple recommendations here if needed locally or through props
-    let fatControl = 0;
-    let muscleControl = 0;
 
-    if (phase === 'cut') {
-        fatControl = -(profile.weight * 0.1);
-    } else if (phase === 'bulk') {
-        muscleControl = +(profile.weight * 0.05);
-        fatControl = +(profile.weight * 0.05);
-    }
 
     // Chart Data
     const chartData = logs.slice(-30).map(l => ({
@@ -200,93 +189,70 @@ export function BodyMetrics({
                 </button>
             </div>
 
-            <div className="flex gap-3">
-                {/* Fitness Score Widget */}
-                <div className="bg-[#111] border border-[#222] rounded-3xl p-4 flex-1 flex flex-col items-center justify-center relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-[#00ff88]/5 rounded-bl-[100px]" />
-                    <span className="text-[#888] text-xs font-bold uppercase tracking-widest mb-2 z-10 flex items-center gap-1">
-                        <Zap size={12} className="text-[#00ff88]" /> Điểm thể hình
+            {/* Fitness Score Widget */}
+            <div className="bg-[#111] border border-[#222] rounded-3xl p-6 flex flex-col items-center justify-center relative overflow-hidden h-40">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ff88]/5 rounded-bl-[100px]" />
+                <span className="text-[#888] text-[10px] font-black uppercase tracking-[0.2em] mb-3 z-10 flex items-center gap-2">
+                    <Zap size={14} className="text-[#00ff88]" /> Điểm thể hình
+                </span>
+                <div className="relative z-10 flex items-baseline gap-2">
+                    <span className="text-6xl font-black text-white dropdown-glow" style={{ textShadow: '0 0 30px rgba(0,255,136,0.4)' }}>
+                        {fitnessScore}
                     </span>
-                    <div className="relative z-10 flex items-baseline gap-1">
-                        <span className="text-5xl font-black text-white dropdown-glow" style={{ textShadow: '0 0 20px rgba(0,255,136,0.3)' }}>
-                            {fitnessScore}
-                        </span>
-                        <span className="text-sm font-bold text-[#666]">/ 100</span>
-                    </div>
-                </div>
-
-                {/* Quick Weight Control */}
-                <div className="bg-[#111] border border-[#222] rounded-3xl p-4 flex-[1.2] flex flex-col justify-center">
-                    <span className="text-[#888] text-xs font-bold uppercase tracking-widest mb-3 flex items-center gap-1">
-                        <Target size={12} className="text-[#ffb800]" /> Khuyến nghị
-                    </span>
-                    <div className="space-y-2">
-                        <div className="flex justify-between items-center bg-[#1a1a1a] rounded-lg p-2 px-3">
-                            <span className="text-xs text-[#aaa]">Mỡ (Fat)</span>
-                            <span className={`text-sm font-bold ${fatControl < 0 ? 'text-[#ff4444]' : fatControl > 0 ? 'text-[#ffb800]' : 'text-[#888]'}`}>
-                                {fatControl > 0 ? '+' : ''}{fatControl === 0 ? 'Giữ nguyên' : `${fatControl.toFixed(1)} kg`}
-                            </span>
-                        </div>
-                        <div className="flex justify-between items-center bg-[#1a1a1a] rounded-lg p-2 px-3">
-                            <span className="text-xs text-[#aaa]">Cơ (Muscle)</span>
-                            <span className={`text-sm font-bold ${muscleControl > 0 ? 'text-[#00ff88]' : 'text-[#888]'}`}>
-                                {muscleControl > 0 ? '+' : ''}{muscleControl === 0 ? 'Giữ nguyên' : `${muscleControl.toFixed(1)} kg`}
-                            </span>
-                        </div>
-                    </div>
+                    <span className="text-lg font-bold text-[#444]">/100</span>
                 </div>
             </div>
 
             {/* Body Composition Analysis */}
-            <div className="bg-[#111] border border-[#222] rounded-3xl p-4">
-                <h3 className="text-sm font-bold text-[#888] mb-4 uppercase tracking-wider">Phân tích thành phần</h3>
-                <div className="space-y-4">
+            <div className="bg-[#111] border border-[#222] rounded-3xl p-6 shadow-xl">
+                <h3 className="text-[10px] font-black text-[#555] mb-6 uppercase tracking-[0.2em]">Phân tích thành phần</h3>
+                <div className="space-y-6">
                     {/* Weight */}
-                    <div>
-                        <div className="flex justify-between text-xs mb-1">
-                            <span className="text-[#aaa] font-bold">Cân nặng (Weight)</span>
-                            <span className="text-white font-black">{latest.weight} <span className="text-[#666]">kg</span></span>
+                    <div className="group">
+                        <div className="flex justify-between items-end mb-2 px-1">
+                            <span className="text-xs text-[#888] font-bold">Cân nặng (Weight)</span>
+                            <span className="text-xl font-black text-white">{latest.weight}<span className="text-[10px] text-[#444] ml-1 uppercase">kg</span></span>
                         </div>
-                        <div className="h-2 w-full bg-[#222] rounded-full overflow-hidden">
-                            <div className="h-full bg-white rounded-full" style={{ width: `${Math.min(100, (latest.weight / 100) * 100)}%` }} />
+                        <div className="h-2.5 w-full bg-white/5 rounded-full overflow-hidden p-[1px]">
+                            <div className="h-full bg-gradient-to-r from-[#888] to-white rounded-full transition-all duration-1000 ease-out" style={{ width: `${Math.min(100, (latest.weight / 120) * 100)}%` }} />
                         </div>
                     </div>
 
                     {/* SMM */}
-                    <div>
-                        <div className="flex justify-between text-xs mb-1">
-                            <span className="text-[#aaa] font-bold">Lượng Cơ (SMM)</span>
-                            <span className="text-[#00ff88] font-black">{latest.muscleMass || '--'} <span className="text-[#666]">kg</span></span>
+                    <div className="group">
+                        <div className="flex justify-between items-end mb-2 px-1">
+                            <span className="text-xs text-[#888] font-bold">Lượng Cơ (SMM)</span>
+                            <span className="text-xl font-black text-[#00ff88]">{latest.muscleMass || '--'}<span className="text-[10px] text-[#00ff8855] ml-1 uppercase">kg</span></span>
                         </div>
-                        <div className="h-2 w-full bg-[#222] rounded-full overflow-hidden">
-                            <div className="h-full bg-[#00ff88] rounded-full" style={{ width: latest.muscleMass ? `${Math.min(100, (latest.muscleMass / latest.weight) * 100 * 2)}%` : '0%' }} />
+                        <div className="h-2.5 w-full bg-[#00ff8808] rounded-full overflow-hidden p-[1px]">
+                            <div className="h-full bg-gradient-to-r from-[#00ff88] to-[#00cc6a] rounded-full transition-all duration-1000 ease-out" style={{ width: latest.muscleMass ? `${Math.min(100, (latest.muscleMass / (latest.weight * 0.7)) * 100)}%` : '0%' }} />
                         </div>
                     </div>
 
                     {/* Body Fat Mass */}
-                    <div>
-                        <div className="flex justify-between text-xs mb-1">
-                            <span className="text-[#aaa] font-bold">Lượng Mỡ (BFM)</span>
-                            <span className="text-[#ffb800] font-black">{bodyFatMass ? bodyFatMass.toFixed(1) : '--'} <span className="text-[#666]">kg</span></span>
+                    <div className="group">
+                        <div className="flex justify-between items-end mb-2 px-1">
+                            <span className="text-xs text-[#888] font-bold">Lượng Mỡ (BFM)</span>
+                            <span className="text-xl font-black text-[#ffb800]">{bodyFatMass ? bodyFatMass.toFixed(1) : '--'}<span className="text-[10px] text-[#ffb80055] ml-1 uppercase">kg</span></span>
                         </div>
-                        <div className="h-2 w-full bg-[#222] rounded-full overflow-hidden">
-                            <div className="h-full bg-[#ffb800] rounded-full" style={{ width: bodyFatMass ? `${Math.min(100, (bodyFatMass / latest.weight) * 100 * 3)}%` : '0%' }} />
+                        <div className="h-2.5 w-full bg-[#ffb80008] rounded-full overflow-hidden p-[1px]">
+                            <div className="h-full bg-gradient-to-r from-[#ffb800] to-[#ff9500] rounded-full transition-all duration-1000 ease-out" style={{ width: bodyFatMass ? `${Math.min(100, (bodyFatMass / (latest.weight * 0.5)) * 100)}%` : '0%' }} />
                         </div>
                     </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-[#222] flex justify-between items-center">
-                    <div className="text-center">
-                        <span className="block text-[10px] text-[#666] uppercase font-bold mb-0.5">BMI</span>
-                        <span className={`text-base font-black ${bmi > 25 ? 'text-[#ffb800]' : 'text-white'}`}>{bmi}</span>
+                <div className="grid grid-cols-3 gap-4 mt-8 pt-8 border-t border-white/5">
+                    <div className="bg-white/5 rounded-2xl p-3 flex flex-col items-center justify-center border border-white/5 transition-all hover:bg-white/[0.08]">
+                        <span className="text-[9px] text-[#555] uppercase font-black tracking-widest mb-1.5">BMI</span>
+                        <span className={`text-lg font-black ${bmi > 25 ? 'text-[#ffb800]' : 'text-white'}`}>{bmi}</span>
                     </div>
-                    <div className="text-center">
-                        <span className="block text-[10px] text-[#666] uppercase font-bold mb-0.5">Tỉ lệ mỡ %</span>
-                        <span className="text-base font-black text-white">{latest.bodyFatPercentage || '--'}%</span>
+                    <div className="bg-white/5 rounded-2xl p-3 flex flex-col items-center justify-center border border-white/5 transition-all hover:bg-white/[0.08]">
+                        <span className="text-[9px] text-[#555] uppercase font-black tracking-widest mb-1.5">Mỡ cơ thể</span>
+                        <span className="text-lg font-black text-white">{latest.bodyFatPercentage || '--'}<span className="text-[10px] text-[#444]">%</span></span>
                     </div>
-                    <div className="text-center">
-                        <span className="block text-[10px] text-[#666] uppercase font-bold mb-0.5">LBM</span>
-                        <span className="text-base font-black text-white">{lbm ? lbm.toFixed(1) : '--'}kg</span>
+                    <div className="bg-white/5 rounded-2xl p-3 flex flex-col items-center justify-center border border-white/5 transition-all hover:bg-white/[0.08]">
+                        <span className="text-[9px] text-[#555] uppercase font-black tracking-widest mb-1.5">LBM</span>
+                        <span className="text-lg font-black text-white">{lbm ? lbm.toFixed(1) : '--'}<span className="text-[10px] text-[#444]">kg</span></span>
                     </div>
                 </div>
             </div>
@@ -309,8 +275,8 @@ export function BodyMetrics({
                         { label: 'Chân Trái', mKey: 'leftLegMuscle', fKey: 'leftLegFat' },
                         { label: 'Chân Phải', mKey: 'rightLegMuscle', fKey: 'rightLegFat' },
                     ].map((item, i) => {
-                        const mVal = (latest as any)[item.mKey];
-                        const fVal = (latest as any)[item.fKey];
+                        const mVal = (latest as unknown as Record<string, number | undefined>)[item.mKey];
+                        const fVal = (latest as unknown as Record<string, number | undefined>)[item.fKey];
 
                         return (
                             <div key={i} className="group">
@@ -393,7 +359,7 @@ export function BodyMetrics({
                                             className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-3 py-2 text-white font-medium outline-none focus:border-[#00ff88]" />
                                     </div>
                                     <div>
-                                        <label className="block text-[11px] font-bold text-[#888] uppercase mb-1.5">Mỡ - Body Fat (%)</label>
+                                        <label className="block text-[11px] font-bold text-[#888] uppercase mb-1.5">Tỉ lệ mỡ cơ thể (%)</label>
                                         <input type="number" step="0.1" value={newBF} onChange={e => setNewBF(e.target.value)}
                                             className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-3 py-2 text-white font-medium outline-none focus:border-[#00ff88]"
                                             placeholder="Tuỳ chọn" />
@@ -405,10 +371,13 @@ export function BodyMetrics({
                                             placeholder="Tuỳ chọn" />
                                     </div>
                                     <div>
-                                        <label className="block text-[11px] font-bold text-[#888] uppercase mb-1.5">Mỡ nội tạng (Level)</label>
+                                        <label className="block text-[11px] font-bold text-[#888] uppercase mb-1.5">Cấp độ mỡ nội tạng (Level)</label>
                                         <input type="number" step="1" value={newVisceral} onChange={e => setNewVisceral(e.target.value)}
                                             className="w-full bg-[#1a1a1a] border border-[#333] rounded-xl px-3 py-2 text-white font-medium outline-none focus:border-[#00ff88]"
                                             placeholder="1-20" />
+                                        <p className="text-[9px] text-[#555] mt-1 italic leading-tight">
+                                            * Thường có trên máy InBody hoặc cân điện tử thông minh.
+                                        </p>
                                     </div>
                                 </div>
                             </div>

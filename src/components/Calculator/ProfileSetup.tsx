@@ -26,7 +26,7 @@ export function ProfileSetup({ profile, onSave }: Props) {
         activityLevel: 'moderate', goal: 'cut'
     });
 
-    const set = (k: keyof UserProfile, v: any) => setForm(f => ({ ...f, [k]: v }));
+    const set = (k: keyof UserProfile, v: string | number) => setForm(f => ({ ...f, [k]: v }));
 
     const handleSave = () => {
         if (!form.weight || !form.height || !form.age) return;
@@ -66,7 +66,7 @@ export function ProfileSetup({ profile, onSave }: Props) {
                     <div key={key}>
                         <label className="text-[10px] text-[#888] block mb-1.5 uppercase font-medium">{label}</label>
                         <input type={type}
-                            value={form[key as keyof UserProfile] as any}
+                            value={form[key as keyof UserProfile] as string | number | undefined}
                             onChange={e => set(key as keyof UserProfile, Number(e.target.value))}
                             className="text-center font-bold text-lg" />
                     </div>
@@ -74,20 +74,41 @@ export function ProfileSetup({ profile, onSave }: Props) {
             </div>
 
             {/* Optional Body Comp */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 pb-2">
                 <div>
-                    <label className="text-[10px] text-[#888] block mb-1.5 uppercase font-medium">Tỷ lệ mỡ (BF%) - <i>Tùy chọn</i></label>
+                    <label className="text-[10px] text-[#888] block mb-1.5 uppercase font-medium">Tỷ lệ mỡ (BF%)</label>
                     <input type="number"
-                        placeholder="VD: 15"
+                        placeholder="Hiện tại, vd: 20"
                         value={form.bodyFatPercentage || ''}
                         onChange={e => set('bodyFatPercentage', Number(e.target.value))}
-                        className="text-center font-bold" />
+                        className="text-center font-bold text-sm" />
                 </div>
                 <div>
+                    <label className="text-[10px] text-[#888] block mb-1.5 uppercase font-medium">Mức mỡ mục tiêu (%)</label>
+                    <input type="number"
+                        placeholder="Mục tiêu, vd: 15"
+                        value={form.targetBodyFatPercentage || ''}
+                        onChange={e => set('targetBodyFatPercentage', Number(e.target.value))}
+                        className="text-center font-bold text-sm border-[#00ff88]/30 focus:border-[#00ff88]" />
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+                <div>
                     <label className="text-[10px] text-[#888] block mb-1.5 uppercase font-medium">Mục tiêu ưu tiên</label>
-                    <select value={form.goal} onChange={e => set('goal', e.target.value)} className="font-bold">
+                    <select value={form.goal} onChange={e => set('goal', e.target.value)} className="font-bold w-full bg-[#111] p-3 rounded-lg border border-[#333] text-white focus:border-[#00ff88]">
                         {GOALS.map(g => <option key={g.id} value={g.id}>{g.label}</option>)}
                     </select>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+                <div>
+                    <label className="text-[10px] text-[#888] block mb-1.5 uppercase font-medium">Ngày bắt đầu theo dõi (Tính Tuần 1)</label>
+                    <input type="date"
+                        value={form.programStartDate || form.createdAt?.split('T')[0] || new Date().toISOString().split('T')[0]}
+                        onChange={e => set('programStartDate', e.target.value)}
+                        className="w-full bg-[#111] border border-[#333] p-3 rounded-lg text-white font-bold text-center focus:border-[#00ff88]" />
                 </div>
             </div>
 
@@ -104,6 +125,8 @@ export function ProfileSetup({ profile, onSave }: Props) {
             <button onClick={handleSave} className="btn-primary w-full py-3.5 text-lg mt-4 shadow-lg">
                 {profile ? 'Cập nhật hồ sơ' : 'Bắt đầu ngay 🚀'}
             </button>
+
+
         </div>
     );
 }

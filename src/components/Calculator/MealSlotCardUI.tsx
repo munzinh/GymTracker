@@ -2,13 +2,13 @@ import { useState } from 'react';
 import type { MealSlot, MacroSummary } from '../../types/nutrition';
 import { Plus, Trash2, Zap, ChevronDown } from 'lucide-react';
 import { FoodSearchModal } from './FoodSearchModal';
-
+import type { FoodItem } from './foodDatabase';
 interface Props {
     userId: string;
     slot: MealSlot;
     dailyTotals: MacroSummary;
     dailyTargets: MacroSummary;
-    onAdd: (food: any, grams: number) => void;
+    onAdd: (food: FoodItem, grams: number) => void;
     onRemove: (id: string) => void;
 }
 

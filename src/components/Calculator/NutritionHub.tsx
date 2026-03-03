@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import {
-    Flame, Calendar, Target, Award, User, ChevronLeft, ChevronRight, CheckCircle2, Database, Dumbbell, LogOut, Activity, BookOpen, AlertTriangle, Menu
+    Flame, Calendar, Target, Award, User, ChevronLeft, ChevronRight, CheckCircle2, Database, Dumbbell, LogOut, Activity, BookOpen, Menu, TrendingUp
 } from 'lucide-react';
 import type {
     UserProfile, DailyLog, MealSlotId, MealSlot, MacroSummary, MealItem
@@ -23,11 +23,14 @@ import { FoodDatabaseManager } from './FoodDatabaseManager';
 import { BodyMetrics } from './BodyMetrics';
 import { FormulasGuide } from './FormulasGuide';
 import { MegaCalculator } from './MegaCalculator';
+import { WorkoutHub } from '../Workout/WorkoutHub';
+import { ProgressDashboard } from '../Workout/ProgressDashboard';
+// import { SmartInsights } from './SmartInsights'; // Removed since it moved to WeeklyAnalytics
 
 // Helpers
 function sumEntries(entries: MealItem[]): MacroSummary {
     return entries.reduce((acc, e) => {
-        const n = e.macros || calcNutrition((e as any).food, e.grams); // fallback for legacy data
+        const n = e.macros || calcNutrition((e as unknown as { food: import('./foodDatabase').FoodItem }).food, e.grams); // fallback for legacy data
         return {
             calories: acc.calories + n.calories,
             protein: Math.round((acc.protein + n.protein) * 10) / 10,
@@ -49,7 +52,7 @@ function sumAllMeals(slots: Record<MealSlotId, MealSlot>): MacroSummary {
 
 export function NutritionHub({ currentUser, onLogout }: { currentUser: import('../../App').CurrentUser, onLogout: () => void }) {
     const userId = currentUser.id;
-    const [tab, setTab] = useState<'daily' | 'weekly' | 'metrics' | 'database' | 'formulas' | 'profile' | 'tools'>('daily');
+    const [tab, setTab] = useState<'daily' | 'weekly' | 'workout' | 'progress' | 'metrics' | 'database' | 'formulas' | 'profile' | 'tools'>('daily');
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // Core state
@@ -58,26 +61,17 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
     const [selectedDate, setSelectedDate] = useState(getTodayStr());
 
     // Gamification
-    const [gamification, setGamification] = useState(() => loadGamification(userId));
-    const [weightLogs, setWeightLogs] = useState(() => loadWeightLogs(userId));
-
-    // Mount logic: Run coaching engine and streak logic
-    useEffect(() => {
+    const [gamification, setGamification] = useState(() => {
         const p = loadProfile(userId);
-        setProfile(p);
         const l = loadDailyLogs(userId);
-        setDailyLogs(l);
-
         if (p) {
             const todayLog = l.find(log => log.date === getTodayStr()) || createEmptyDailyLog(userId, getTodayStr());
             updateDailyStreak(userId, todayLog);
             checkBadges(userId, l);
-            setGamification(loadGamification(userId));
-
-            const wLogs = loadWeightLogs(userId);
-            setWeightLogs(wLogs);
         }
-    }, [userId]);
+        return loadGamification(userId);
+    });
+    const [weightLogs, setWeightLogs] = useState(() => loadWeightLogs(userId));
 
     // Daily View Data Context
     const currentLog = useMemo(() => {
@@ -91,11 +85,12 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
             : createEmptyDailyLog(userId, selectedDate).meals
     );
 
-    // Sync state when selected date changes
-    useEffect(() => {
-        const log = dailyLogs.find(l => l.date === selectedDate) || createEmptyDailyLog(userId, selectedDate);
+    const handleDateChange = (newDate: string) => {
+        setSelectedDate(newDate);
+        const latestStorage = loadDailyLogs(userId);
+        const log = latestStorage.find(l => l.date === newDate) || createEmptyDailyLog(userId, newDate);
         setLiveMeals(log.meals);
-    }, [selectedDate, dailyLogs, userId]);
+    };
 
     const dailyTotals = useMemo(() => sumAllMeals(liveMeals), [liveMeals]);
 
@@ -132,7 +127,7 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                         grams,
                         macros: calcNutrition(food, grams),
                         food
-                    } as any]
+                    } as unknown as import('../../types/nutrition').MealItem]
                 }
             };
             saveLatestMeals(next);
@@ -162,7 +157,7 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
 
         // Ensure slot totals are updated
         (Object.keys(updatedMeals) as MealSlotId[]).forEach(k => {
-            updatedMeals[k].totals = sumEntries((updatedMeals[k] as any).items);
+            updatedMeals[k].totals = sumEntries((updatedMeals[k] as unknown as { items: import('../../types/nutrition').MealItem[] }).items);
         });
 
         const latestTotals = sumAllMeals(updatedMeals);
@@ -194,7 +189,7 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
     const navigateDate = (dir: -1 | 1) => {
         const d = new Date(selectedDate);
         d.setDate(d.getDate() + dir);
-        setSelectedDate(d.toISOString().slice(0, 10));
+        handleDateChange(d.toISOString().slice(0, 10));
     };
 
     const isToday = selectedDate === getTodayStr();
@@ -254,12 +249,14 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
 
                 {/* DROPDOWN MENU (Absolute Overlay) */}
                 <div className={`absolute top-full left-0 right-0 z-50 overflow-hidden transition-all duration-300 cubic-bezier(0.16, 1, 0.3, 1) ${isSidebarOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                    <div className="mx-4 mt-2 p-3 bg-[#0a0a0a]/95 backdrop-blur-xl border border-[#222] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+                    <div className="mx-4 mt-2 p-3 bg-[#0a0a0a]/95 backdrop-blur-xl border border-[#222] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-y-auto max-h-[450px]">
                         <div className="grid grid-cols-1 gap-2">
                             {[
-                                { id: 'daily' as const, icon: Target, label: 'Tracking', desc: 'Nhật ký' },
-                                { id: 'weekly' as const, icon: Award, label: 'Báo cáo', desc: 'Tiến độ' },
-                                { id: 'metrics' as const, icon: Activity, label: 'Chỉ số', desc: 'InBody' },
+                                { id: 'daily' as const, icon: Target, label: 'Nhật ký', desc: 'Theo dõi' },
+                                { id: 'workout' as const, icon: Dumbbell, label: 'Lịch tập', desc: 'Giáo án' },
+                                { id: 'progress' as const, icon: TrendingUp, label: 'Sức mạnh', desc: 'Tiến độ' },
+                                { id: 'weekly' as const, icon: Award, label: 'Thống kê', desc: 'Dinh dưỡng' },
+                                { id: 'metrics' as const, icon: Activity, label: 'Chỉ số', desc: 'Cơ thể' },
                                 { id: 'database' as const, icon: Database, label: 'Thực phẩm', desc: 'Tra cứu' },
                                 { id: 'formulas' as const, icon: BookOpen, label: 'Công thức', desc: 'Khoa học' },
                                 { id: 'tools' as const, icon: BookOpen, label: 'Công cụ', desc: 'Máy tính' },
@@ -339,9 +336,10 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                             userId={userId}
                             profile={profile}
                             selectedDate={selectedDate}
-                            onDateChange={setSelectedDate}
+                            onDateChange={handleDateChange}
                             onUpdate={() => {
                                 setProfile(loadProfile(userId));
+                                setWeightLogs(loadWeightLogs(userId));
                             }}
                         />
                     </div>
@@ -361,25 +359,23 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                     </div>
                 )}
 
+                {/* Tab: Workout Hub */}
+                {tab === 'workout' && (
+                    <div className="pb-8">
+                        <WorkoutHub userId={userId} />
+                    </div>
+                )}
+
+                {/* Tab: Progress Dashboard */}
+                {tab === 'progress' && (
+                    <div className="px-4 pb-8 border-none">
+                        <ProgressDashboard userId={userId} />
+                    </div>
+                )}
+
                 {/* Tab: Daily Tracking */}
                 {tab === 'daily' && targets && (
                     <div className="px-4 space-y-3 fade-in">
-                        {/* Surplus Alert */}
-                        {dailyTotals.calories > targets.calories && (
-                            <div className="bg-[#ff444410] border border-[#ff444433] rounded-2xl p-4 flex items-start gap-3 shadow-lg">
-                                <div className="p-2 bg-[#ff444422] rounded-xl text-[#ff4444]">
-                                    <AlertTriangle size={18} />
-                                </div>
-                                <div>
-                                    <h4 className="text-[11px] font-black text-[#ff4444] uppercase tracking-wider mb-1">Cảnh báo: Vượt mức Calo!</h4>
-                                    <p className="text-xs text-[#aaa] leading-relaxed font-medium">
-                                        Bạn đã nạp dư <span className="text-white font-bold">{Math.round(dailyTotals.calories - targets.calories)} kcal</span>.
-                                        Đừng quá lo lắng, hãy chủ động cắt giảm <span className="text-[#00ff88] font-bold">150-200 kcal</span> vào thực đơn ngày mai để bù đắp nhé!
-                                    </p>
-                                </div>
-                            </div>
-                        )}
-
                         {/* Date Navigator */}
                         <div className="flex justify-between items-center bg-[#111] p-1.5 rounded-xl border border-[#222]">
                             <button onClick={() => navigateDate(-1)} className="p-2 bg-[#1a1a1a] rounded-lg text-[#888] hover:text-white transition-colors">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { User, Plus, Trash2, ArrowRight } from 'lucide-react';
 
 interface UserProfile {
@@ -11,20 +11,16 @@ const LS_USERS = 'cutlean-users';
 const LS_CURRENT_USER = 'cutlean-current-user';
 
 export function LoginScreen({ onLogin }: { onLogin: (userId: string, userName: string) => void }) {
-    const [users, setUsers] = useState<UserProfile[]>([]);
-    const [newUserName, setNewUserName] = useState('');
-    const [isCreating, setIsCreating] = useState(false);
-
-    useEffect(() => {
+    const [users, setUsers] = useState<UserProfile[]>(() => {
         try {
             const stored = localStorage.getItem(LS_USERS);
-            if (stored) {
-                setUsers(JSON.parse(stored));
-            }
-        } catch (e) {
-            console.error('Failed to load users', e);
+            return stored ? JSON.parse(stored) : [];
+        } catch {
+            return [];
         }
-    }, []);
+    });
+    const [newUserName, setNewUserName] = useState('');
+    const [isCreating, setIsCreating] = useState(false);
 
     const handleCreateUser = (e: React.FormEvent) => {
         e.preventDefault();
@@ -32,7 +28,7 @@ export function LoginScreen({ onLogin }: { onLogin: (userId: string, userName: s
         if (!trimmed) return;
 
         const newUser: UserProfile = {
-            id: 'user_' + Date.now().toString(),
+            id: 'user_' + crypto.randomUUID(),
             name: trimmed,
             createdAt: new Date().toISOString()
         };

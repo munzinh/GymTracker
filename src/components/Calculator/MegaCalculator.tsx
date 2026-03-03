@@ -23,9 +23,9 @@ export interface SharedInputs {
 const ACTIVITY_MULTIPLIER: Record<ActivityLevel, number> = {
     sedentary: 1.2,
     light: 1.375,
-    moderate: 1.55,
-    active: 1.725,
-    very_active: 1.9
+    moderate: 1.465,
+    active: 1.55,
+    very_active: 1.725
 };
 
 const calcBMR = (w: number, h: number, a: number, g: Gender) => {
@@ -47,7 +47,7 @@ const calculators = [
             if (h > 0 && w > 0) return (w / (h * h)).toFixed(1);
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const h = parseFloat(inputs.height) / 100;
             const w = parseFloat(inputs.weight);
             const bmi = h > 0 && w > 0 ? w / (h * h) : 0;
@@ -87,7 +87,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
             const h = parseFloat(inputs.height);
             const a = parseFloat(inputs.age);
@@ -125,7 +125,7 @@ const calculators = [
             }
             return bf > 0 ? bf.toFixed(1) + '%' : null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             // US Navy Method
             const h = parseFloat(inputs.height);
             const w = parseFloat(inputs.waist);
@@ -163,7 +163,7 @@ const calculators = [
             if (w && h && a) return Math.round(calcBMR(w, h, a, inputs.gender)) + ' kcal';
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
             const h = parseFloat(inputs.height);
             const a = parseFloat(inputs.age);
@@ -193,7 +193,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const h = parseFloat(inputs.height);
             let devine = 0;
             if (h > 152.4) {
@@ -229,7 +229,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const d = parseFloat(inputs.dist);
             const m = parseFloat(inputs.min) || 0;
             const s = parseFloat(inputs.sec) || 0;
@@ -282,7 +282,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             // Uses same inputs as standard body fat for simplicity here, but standard is slightly different for Army
             return (
                 <div className="space-y-4">
@@ -327,7 +327,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
             const h = parseFloat(inputs.height);
             let lbm = 0;
@@ -359,7 +359,7 @@ const calculators = [
             if (h > 0) return `${(18.5 * h * h).toFixed(0)} - ${(25 * h * h).toFixed(0)} kg`;
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const h = parseFloat(inputs.height) / 100;
             const minW = 18.5 * (h * h);
             const maxW = 25 * (h * h);
@@ -388,7 +388,7 @@ const calculators = [
             if (w && m && metVal) return Math.round((metVal * 3.5 * w / 200) * m) + ' kcal';
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
             const m = parseFloat(inputs.workoutMins);
             const metVal = parseFloat(inputs.met);
@@ -433,7 +433,7 @@ const calculators = [
             if (weight && reps) return (weight * (1 + reps / 30)).toFixed(1) + ' kg';
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const weight = parseFloat(inputs.wMax);
             const reps = parseFloat(inputs.rMax);
             const orm = (weight && reps) ? weight * (1 + reps / 30) : 0; // Epley
@@ -467,7 +467,7 @@ const calculators = [
             if (a) return (220 - a) + ' bpm';
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const a = parseFloat(inputs.age);
             const maxHR = a ? 220 - a : 0;
 
@@ -498,7 +498,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
             const h = parseFloat(inputs.height);
             const a = parseFloat(inputs.age);
@@ -531,7 +531,7 @@ const calculators = [
             if (w) return `${Math.round(w * 3)}-${Math.round(w * 5)} g`;
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
 
             return (
@@ -555,7 +555,7 @@ const calculators = [
             if (w) return `${Math.round(w * 1.6)} - ${Math.round(w * 2.2)} g`;
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
 
             return (
@@ -564,8 +564,8 @@ const calculators = [
                     {w > 0 && (
                         <div className="card p-4 space-y-3">
                             <p className="text-[#888] text-[11px] font-bold uppercase tracking-widest text-center mb-2">Khuyến nghị lượng Đạm hàng ngày</p>
-                            <ResultRow label="Người ít vận động (0.8g/kg)" value={Math.round(w * 0.8)} unit="g" color="#00ff88" />
-                            <ResultRow label="Tập duy trì (1.6g/kg)" value={Math.round(w * 1.6)} unit="g" color="#00ff88" />
+                            <ResultRow label="Người ít vận động (1.6g/kg)" value={Math.round(w * 1.6)} unit="g" color="#00ff88" />
+                            <ResultRow label="Tập duy trì/Tăng cơ (1.8 - 2.0g/kg)" value={`${Math.round(w * 1.8)} - ${Math.round(w * 2.0)}`} unit="g" color="#00ff88" />
                             <ResultRow label="Tăng cơ tối đa (2.2g/kg)" value={Math.round(w * 2.2)} unit="g" color="#00ff88" />
                         </div>
                     )}
@@ -585,7 +585,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
             const h = parseFloat(inputs.height);
             const a = parseFloat(inputs.age);
@@ -615,7 +615,7 @@ const calculators = [
             if (w && h && a) return Math.round(calcBMR(w, h, a, inputs.gender) * ACTIVITY_MULTIPLIER[inputs.activity]) + ' kcal';
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
             const h = parseFloat(inputs.height);
             const a = parseFloat(inputs.age);
@@ -651,7 +651,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const a = parseFloat(inputs.age);
             const cr = parseFloat(inputs.scr);
 
@@ -699,7 +699,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.waist);
             const h = parseFloat(inputs.hip);
             const b = parseFloat(inputs.bust);
@@ -738,7 +738,7 @@ const calculators = [
             if (w && h) return (0.007184 * Math.pow(w, 0.425) * Math.pow(h, 0.725)).toFixed(2) + ' m²';
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
             const h = parseFloat(inputs.height);
             const bsa = w && h ? 0.007184 * Math.pow(w, 0.425) * Math.pow(h, 0.725) : 0; // Du Bois
@@ -773,7 +773,7 @@ const calculators = [
             }
             return null;
         },
-        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void) => {
+        render: (inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void) => {
             const w = parseFloat(inputs.weight);
             const v = parseFloat(inputs.vol);
             const a = parseFloat(inputs.abv) / 100;
@@ -817,7 +817,7 @@ const calculators = [
     }
 ];
 
-function PieChartIcon(props: any) {
+function PieChartIcon(props: React.ComponentProps<typeof CircleIcon>) {
     return <CircleIcon {...props} />
 }
 
@@ -825,7 +825,7 @@ function PieChartIcon(props: any) {
 // SHARED COMPONENTS
 // ==========================================
 
-function SharedInputsForm({ inputs, update, fields }: { inputs: SharedInputs, update: (k: keyof SharedInputs, v: any) => void, fields: (keyof SharedInputs)[] }) {
+function SharedInputsForm({ inputs, update, fields }: { inputs: SharedInputs, update: (k: keyof SharedInputs, v: string) => void, fields: (keyof SharedInputs)[] }) {
     return (
         <div className="grid grid-cols-2 gap-3 mb-2">
             {fields.includes('gender') && (
@@ -902,13 +902,13 @@ function ResultRow({ label, value, unit, color }: { label: string, value: string
 // MAIN CALCULATOR CONTAINER
 // ==========================================
 
-export function MegaCalculator({ profile }: { profile: any }) {
+export function MegaCalculator({ profile }: { profile: import('../../types/nutrition').UserProfile | null }) {
     const [selectedId, setSelectedId] = useState<string | null>(null);
 
     // Initial state setup falling back to profile or defaults
     const getInitialInputs = (): SharedInputs => {
         const defaultInputs: SharedInputs = {
-            gender: profile?.gender === 'female' ? 'female' : 'male',
+            gender: profile?.sex === 'female' ? 'female' : 'male',
             age: profile?.age ? String(profile.age) : '25',
             weight: profile?.weight ? String(profile.weight) : '70',
             height: profile?.height ? String(profile.height) : '170',
@@ -939,7 +939,7 @@ export function MegaCalculator({ profile }: { profile: any }) {
         localStorage.setItem('cutlean_mega_calc_inputs', JSON.stringify(inputs));
     }, [inputs]);
 
-    const updateInput = (k: keyof SharedInputs, v: any) => setInputs(prev => ({ ...prev, [k]: v }));
+    const updateInput = (k: keyof SharedInputs, v: string) => setInputs(prev => ({ ...prev, [k]: v }));
 
     const selectedCalc = selectedId ? calculators.find(c => c.id === selectedId) : null;
 

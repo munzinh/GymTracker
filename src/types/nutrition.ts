@@ -41,6 +41,7 @@ export interface UserProfile {
     trunkFat?: number;
     leftLegFat?: number;
     rightLegFat?: number;
+    programStartDate?: string; // Explicit date for "Week 1" calculation
     createdAt: string;
     updatedAt: string;
 }
@@ -127,7 +128,7 @@ export interface AdaptiveSuggestion {
     title: string;
     message: string;
     actionLabel?: string;
-    actionPayload?: any; // e.g., suggested new target
+    actionPayload?: unknown; // e.g., suggested new target
     dateGenerated: string;
     status: 'new' | 'read' | 'applied' | 'dismissed';
 }

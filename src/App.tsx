@@ -37,7 +37,7 @@ function AppContent() {
     <div className="min-h-screen" style={{ background: '#090909' }}>
       {/* Main content - Unified Dashboard (NutritionHub) */}
       <main className="w-full mx-auto pb-24 md:pb-8">
-        <FitnessCalculator currentUser={currentUser} onLogout={handleLogout} />
+        <FitnessCalculator key={currentUser.id} currentUser={currentUser} onLogout={handleLogout} />
       </main>
     </div>
   );

@@ -4,9 +4,9 @@ import type { FoodItem } from '../components/Calculator/foodDatabase';
 const ACTIVITY_MAP = {
     sedentary: 1.2,
     light: 1.375,
-    moderate: 1.55,
-    active: 1.725,
-    very_active: 1.9,
+    moderate: 1.465,
+    active: 1.55,
+    very_active: 1.725,
 };
 
 const GOALS_MAP = {
@@ -43,8 +43,8 @@ export function calcMacroTargets(profile: UserProfile): MacroSummary {
     // New Formula based on Body Fat %
     const bodyFat = profile.bodyFatPercentage || 20; // Default to >15% if unknown
 
-    // Daily Protein: 2.0g/kg if BF < 15%, else 1.7g/kg
-    const proteinFactor = bodyFat < 15 ? 2.0 : 1.7;
+    // Daily Protein: 2.0g/kg if BF < 15%, else 1.6g/kg
+    const proteinFactor = bodyFat < 15 ? 2.0 : 1.6;
     const protein = Math.round(profile.weight * proteinFactor);
 
     // Daily Fat: 0.6g/kg
