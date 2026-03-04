@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Plus, Flame, Save, Trash2, Play, Edit2 } from 'lucide-react';
 import type { WorkoutSession, WorkoutTemplate, ExerciseSet } from '../../types/workout';
-import { getWorkoutSessionByDate, saveSingleWorkoutSession, deleteWorkoutSession, loadWorkoutTemplates, isHistoricalPR, getWeeklySchedule, saveWeeklySchedule, startWorkoutSession } from '../../utils/workoutStorage';
+import { getWorkoutSessionByDate, saveSingleWorkoutSession, deleteWorkoutSession, loadWorkoutTemplates, isHistoricalPR, getWeeklySchedule, saveWeeklySchedule, startWorkoutSession, getLastExercisePerformance } from '../../utils/workoutStorage';
 import { getWeekStart } from '../../utils/workoutStorage';
 
 interface Props {
@@ -38,6 +38,40 @@ export function WorkoutTracker({ userId, dateStr, scheduledTemplateId, onBack, o
     useEffect(() => {
         const existingSession = getWorkoutSessionByDate(userId, dateStr);
         if (existingSession) {
+            // Nếu session đang trống (chưa nhập tạ nào) thì thử tự động lấy chỉ số từ các buổi tập trước đó
+            if (existingSession.totalVolume === 0 && existingSession.status === 'in_progress') {
+                let changed = false;
+                const updatedExercises = existingSession.exercises.map(ex => {
+                    const lastLog = getLastExercisePerformance(userId, ex.name, dateStr);
+                    if (lastLog) {
+                        const newSets = ex.sets.map((s, i) => {
+                            if (lastLog.sets.length > i && (lastLog.sets[i].weight > 0 || lastLog.sets[i].reps > 0)) {
+                                if (s.weight === 0 && s.reps === parseInt(ex.repRange?.split('-')[1] || '0') || s.reps === 0) {
+                                    changed = true;
+                                    return {
+                                        ...s,
+                                        weight: lastLog.sets[i].weight,
+                                        reps: lastLog.sets[i].reps,
+                                        rir: lastLog.sets[i].rir
+                                    };
+                                }
+                            }
+                            return s;
+                        });
+                        return { ...ex, sets: newSets };
+                    }
+                    return ex;
+                });
+
+                if (changed) {
+                    const syncedSession = { ...existingSession, exercises: updatedExercises };
+                    setLog(syncedSession);
+                    // Không lưu liền tránh mất state gốc nếu người dùng không ưng ý, 
+                    // nhưng vì ta auto-save khi nhập tay nên lưu tạm cũng được
+                    saveSingleWorkoutSession(userId, syncedSession);
+                    return;
+                }
+            }
             setLog(existingSession);
         } else if (!hasAutoStarted.current && scheduledTemplateId && scheduledTemplateId !== 'rest' && templates.length > 0) {
             hasAutoStarted.current = true;
@@ -93,6 +127,10 @@ export function WorkoutTracker({ userId, dateStr, scheduledTemplateId, onBack, o
         }
 
         setLog(newLog);
+
+        // Tự động lưu ngầm vào Storage mỗi khi nhập số liệu, 
+        // giúp người dùng không cần bấm Hoàn Thành/Lưu nhiều lần
+        saveSingleWorkoutSession(userId, newLog);
     };
 
     const handleSave = () => {

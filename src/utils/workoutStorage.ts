@@ -174,13 +174,17 @@ export function getLastExercisePerformance(userId: string, exerciseName: string,
     const sessions = loadWorkoutSessions(userId);
     // Find the most recent session before this date that has this exercise
     const pastSessions = sessions
-        .filter(s => s.date < beforeDate && s.status === 'completed')
+        .filter(s => s.date < beforeDate)
         .sort((a, b) => b.date.localeCompare(a.date));
 
     for (const session of pastSessions) {
         const ex = session.exercises.find(e => e.name === exerciseName);
         if (ex && ex.sets.length > 0) {
-            return ex;
+            // Ensure this exercise was actually performed (has weight or reps > 0)
+            const hasData = ex.sets.some(s => s.weight > 0 || s.reps > 0);
+            if (hasData) {
+                return ex;
+            }
         }
     }
     return null;
