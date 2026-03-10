@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Plus, Trash2, Search, X, Edit2, RotateCcw, Save, ChevronLeft, Star, Tag } from 'lucide-react';
 import {
     FOOD_CATEGORIES, loadFoodDatabase, addCustomFood, deleteFood,

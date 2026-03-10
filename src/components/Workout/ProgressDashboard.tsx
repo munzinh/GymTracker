@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line, BarChart, Bar, Cell } from 'recharts';
-import { TrendingUp, TrendingDown, Flame, Trophy, Calendar, Target, Activity } from 'lucide-react';
+import { TrendingUp, TrendingDown, Flame, Trophy, Calendar, Target, Activity, ActivityIcon } from 'lucide-react';
 import { loadWorkoutSessions } from '../../utils/workoutStorage';
+import { loadWeightLogs } from '../../utils/storage';
 import {
     getWeeklyVolumeData,
     getStrengthProgressionData,
@@ -17,6 +18,7 @@ interface Props {
 
 export function ProgressDashboard({ userId }: Props) {
     const sessions = useMemo(() => loadWorkoutSessions(userId), [userId]);
+    const weightLogs = useMemo(() => loadWeightLogs(userId), [userId]);
 
     // Data Hooks
     const volumeData = useMemo(() => getWeeklyVolumeData(sessions, 8).reverse(), [sessions]);
@@ -43,12 +45,12 @@ export function ProgressDashboard({ userId }: Props) {
     const avgPrevVol = volumeData.length > 2 ? volumeData[volumeData.length - 2].totalVolume : 0;
     const volGrowth = avgPrevVol > 0 ? ((avgRecentVol - avgPrevVol) / avgPrevVol) * 100 : (avgRecentVol > 0 ? 100 : 0);
 
-    if (sessions.filter(s => s.status === 'completed').length === 0) {
+    if (sessions.filter(s => s.status === 'completed').length === 0 && weightLogs.length === 0) {
         return (
             <div className="p-8 text-center bg-[#111] rounded-3xl border border-[#222] mt-4 fade-in">
                 <Target size={48} className="mx-auto text-[#444] mb-4" />
                 <h3 className="text-white font-black uppercase text-lg mb-2">Chưa đủ dữ liệu</h3>
-                <p className="text-[#888] text-sm">Hãy hoàn thành ít nhất 1 buổi tập để xem biểu đồ tiến độ nhé!</p>
+                <p className="text-[#888] text-sm">Hãy hoàn thành ít nhất 1 buổi tập hoặc cập nhật chỉ số cơ thể để xem biểu đồ tiến độ nhé!</p>
             </div>
         );
     }
@@ -58,10 +60,42 @@ export function ProgressDashboard({ userId }: Props) {
             {/* Main Header */}
             <div>
                 <h2 className="text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2">
-                    <TrendingUp className="text-[#00ff88]" size={24} /> Tiến Độ Sức Mạnh
+                    <TrendingUp className="text-[#00ff88]" size={24} /> Tiến Độ Cá Nhân
                 </h2>
-                <p className="text-[#888] text-xs font-bold mt-1 tracking-wide">TỔNG QUAN 8 TUẦN GẦN NHẤT</p>
+                <p className="text-[#888] text-xs font-bold mt-1 tracking-wide">TỔNG QUAN THEO THỜI GIAN</p>
             </div>
+
+            {/* BODY METRICS CHART */}
+            {weightLogs.length > 0 && (
+                <div className="bg-[#111] border border-[#222] rounded-3xl p-4 shadow-lg relative overflow-hidden">
+                    <div className="flex justify-between items-start mb-6">
+                        <div>
+                            <h3 className="text-white font-bold text-sm uppercase flex items-center gap-1.5">
+                                <ActivityIcon size={16} className="text-neon-blue" /> Chỉ số cơ thể
+                            </h3>
+                            <p className="text-[#666] text-[10px] font-medium mt-0.5">Biến thiên Cân nặng, Cơ và Mỡ</p>
+                        </div>
+                    </div>
+
+                    <div className="h-[250px] w-full ml-[-20px]">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={weightLogs}>
+                                <XAxis dataKey="date" tickFormatter={(dateStr) => new Date(dateStr).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })} axisLine={false} tickLine={false} tick={{ fill: '#666', fontSize: 10, fontWeight: 'bold' }} dy={10} />
+                                <YAxis yAxisId="left" axisLine={false} tickLine={false} tick={{ fill: '#444', fontSize: 10, fontWeight: 'bold' }} dx={-10} width={40} domain={['auto', 'auto']} />
+                                <YAxis yAxisId="right" orientation="right" axisLine={false} tickLine={false} tick={{ fill: '#444', fontSize: 10, fontWeight: 'bold' }} dx={10} width={40} domain={['auto', 'auto']} />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333', borderRadius: '12px', color: '#fff' }}
+                                    labelFormatter={(label) => new Date(label).toLocaleDateString('vi-VN')}
+                                    itemStyle={{ fontWeight: 'bold' }}
+                                />
+                                <Line yAxisId="left" type="monotone" dataKey="weight" name="Cân nặng (kg)" stroke="#00e5ff" strokeWidth={3} dot={{ r: 4, fill: '#111', stroke: '#00e5ff', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#00e5ff' }} />
+                                <Line yAxisId="left" type="monotone" dataKey="muscleMass" name="Cơ bắp (kg)" stroke="#00ff88" strokeWidth={3} dot={{ r: 4, fill: '#111', stroke: '#00ff88', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#00ff88' }} connectNulls />
+                                <Line yAxisId="right" type="monotone" dataKey="bodyFatPercentage" name="Mỡ (%)" stroke="#ff4444" strokeWidth={3} dot={{ r: 4, fill: '#111', stroke: '#ff4444', strokeWidth: 2 }} activeDot={{ r: 6, fill: '#ff4444' }} connectNulls />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+            )}
 
             {/* 1. WEEKLY VOLUME CHART */}
             <div className="bg-[#111] border border-[#222] rounded-3xl p-4 shadow-lg relative overflow-hidden">

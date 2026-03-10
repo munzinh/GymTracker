@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Scale, Activity, Flame, Ruler, Target, Heart, HeartPulse, Percent, Binary, Layers, Timer, Zap, Drumstick, Cookie, Droplet, User, Circle as CircleIcon, ArrowLeft } from 'lucide-react';
 
 type Gender = 'male' | 'female';

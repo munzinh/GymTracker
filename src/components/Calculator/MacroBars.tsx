@@ -1,5 +1,7 @@
 import { AlertTriangle } from 'lucide-react';
 import type { MacroSummary } from "../../types/nutrition";
+import { motion, useSpring, useTransform } from 'framer-motion';
+import { useEffect } from 'react';
 
 // --- Logic Layer ---
 
@@ -43,24 +45,41 @@ interface Props {
 
 const statusColors = {
     UNDER: {
-        text: 'text-[#00e5ff]', // Electric Cyan
-        bar: 'bg-[#00e5ff] shadow-[0_0_12px_rgba(0,229,255,0.4)]',
-        bg: 'bg-[#00e5ff]/5',
-        border: 'border-[#00e5ff]/20'
+        text: 'text-neon-blue', // Electric Cyan
+        bar: 'bg-neon-blue shadow-[0_0_12px_var(--color-neon-blue-glow)]',
+        bg: 'bg-neon-blue/5',
+        border: 'border-neon-blue/20'
     },
     OPTIMAL: {
-        text: 'text-[#00ff88]', // Neon Green
-        bar: 'bg-[#00ff88] shadow-[0_0_12px_rgba(0,255,136,0.4)]',
-        bg: 'bg-[#00ff88]/5',
-        border: 'border-[#00ff88]/20'
+        text: 'text-neon', // Neon Green
+        bar: 'bg-neon shadow-[0_0_12px_var(--color-neon-glow)]',
+        bg: 'bg-neon/5',
+        border: 'border-neon/20'
     },
     OVER: {
-        text: 'text-[#ff3860]', // Neon Red/Pink
-        bar: 'bg-[#ff3860] shadow-[0_0_15px_rgba(255,56,96,0.5)]',
-        bg: 'bg-[#ff3860]/5',
-        border: 'border-[#ff3860]/20'
+        text: 'text-neon-red', // Neon Red/Pink
+        bar: 'bg-neon-red shadow-[0_0_15px_var(--color-neon-red-glow)]',
+        bg: 'bg-neon-red/5',
+        border: 'border-neon-red/20'
     }
 };
+
+function AnimatedNumber({ value, className }: { value: number, className: string }) {
+    // Prevent huge numbers from breaking the layout (displaying as e+50)
+    const safeValue = isNaN(value) ? 0 : Math.min(Math.max(value, 0), 99999);
+
+    const spring = useSpring(0, { mass: 1, stiffness: 60, damping: 15 });
+    const display = useTransform(spring, (current) => {
+        // Round to nearest integer and format with max length
+        return Math.round(current).toString();
+    });
+
+    useEffect(() => {
+        spring.set(safeValue);
+    }, [spring, safeValue]);
+
+    return <motion.span className={className}>{display}</motion.span>;
+}
 
 export function MacroBars({ current, target, bodyWeight }: Props) {
     // Fat Validation Rule: min 0.8g per kg bodyweight
@@ -81,7 +100,7 @@ export function MacroBars({ current, target, bodyWeight }: Props) {
                         <div className="flex items-center gap-2">
                             <span className="font-black text-white text-lg tracking-tight uppercase leading-none">{label}</span>
                             {status === 'OVER' && ratio > 1.1 && (
-                                <span className="text-[10px] bg-[#ff3860] text-white px-1.5 py-0.5 rounded font-black uppercase tracking-tighter animate-pulse">
+                                <span className="text-[10px] bg-neon-red text-white px-1.5 py-0.5 rounded font-black uppercase tracking-tighter animate-pulse-red">
                                     OVER {(ratio * 100 - 100).toFixed(0)}%
                                 </span>
                             )}
@@ -94,26 +113,29 @@ export function MacroBars({ current, target, bodyWeight }: Props) {
                     </div>
                     <div className="text-right leading-none">
                         <div className="flex items-baseline justify-end gap-1">
-                            <span className={`text-2xl font-black tabular-nums transition-colors ${config.text}`}>
-                                {Math.round(curr)}
-                            </span>
-                            <span className="text-xs text-white/30 font-bold">/ {targ}g</span>
+                            <AnimatedNumber value={curr} className={`text-2xl font-black tabular-nums transition-colors ${config.text}`} />
+                            <span className="text-xs text-muted font-bold">/ {targ}g</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="relative h-3 bg-white/5 rounded-full overflow-hidden border border-white/5">
+                <div className="relative h-3 bg-card rounded-full overflow-hidden border border-border">
                     {/* Normal Zone (up to 100%) */}
-                    <div
-                        className={`absolute top-0 left-0 h-full transition-all duration-700 ease-out ${config.bar}`}
-                        style={{ width: `${baseWidth}%` }}
+                    <motion.div
+                        className={`absolute top-0 left-0 h-full ${config.bar}`}
+                        initial={{ width: 0 }}
+                        animate={{ width: `${baseWidth}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                     />
 
                     {/* Overflow Zone (beyond 100%) */}
                     {overflowWidth > 0 && (
-                        <div
-                            className="absolute top-0 h-full bg-[#ff3860] transition-all duration-700 delay-100 ease-out shadow-[0_0_15px_rgba(255,56,96,0.6)]"
-                            style={{ left: `${targetLinePercent}%`, width: `${overflowWidth}%` }}
+                        <motion.div
+                            className="absolute top-0 h-full bg-neon-red shadow-[0_0_15px_var(--color-neon-red-glow)]"
+                            initial={{ width: 0 }}
+                            animate={{ width: `${overflowWidth}%` }}
+                            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                            style={{ left: `${targetLinePercent}%` }}
                         />
                     )}
 
@@ -130,19 +152,19 @@ export function MacroBars({ current, target, bodyWeight }: Props) {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between px-1">
-                <h3 className="font-black text-xs text-white/40 uppercase tracking-[0.2em]">Cân bằng Dinh dưỡng</h3>
+                <h3 className="font-black text-xs text-muted uppercase tracking-[0.2em]">Cân bằng Dinh dưỡng</h3>
                 <div className="flex gap-2">
                     <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-cyan-500" />
-                        <span className="text-[9px] font-bold text-white/60 uppercase">Under</span>
+                        <div className="w-2 h-2 rounded-full bg-neon-blue" />
+                        <span className="text-[9px] font-bold text-muted uppercase">Under</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                        <span className="text-[9px] font-bold text-white/60 uppercase">Optimal</span>
+                        <div className="w-2 h-2 rounded-full bg-neon" />
+                        <span className="text-[9px] font-bold text-muted uppercase">Optimal</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-red-600" />
-                        <span className="text-[9px] font-bold text-white/60 uppercase">Over</span>
+                        <div className="w-2 h-2 rounded-full bg-neon-red" />
+                        <span className="text-[9px] font-bold text-muted uppercase">Over</span>
                     </div>
                 </div>
             </div>

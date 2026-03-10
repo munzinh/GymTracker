@@ -3,6 +3,7 @@
 // References: NIN Vietnam, VSEA Nutrition Table, USDA
 
 export const DEFAULT_FOOD_CATEGORIES: string[] = [
+    'Thêm nhanh',
     'Tinh bột',
     'Thịt (Đạm)',
     'Cá & Hải sản',
@@ -13,6 +14,7 @@ export const DEFAULT_FOOD_CATEGORIES: string[] = [
     'Đậu & Các loại',
     'Hạt & Quả hạch',
     'Chất béo tốt',
+    'Món ăn Việt Nam',
 ];
 
 export const FOOD_CATEGORIES = DEFAULT_FOOD_CATEGORIES;
@@ -113,36 +115,27 @@ export const DEFAULT_FOOD_DATABASE: FoodItem[] = [
     f('millet', 'Millet', 'Kê', 'Tinh bột', 378, 11, 72.8, 4.2, 50, '1/2 chén'),
 
     // ─── THỊT (PROTEIN) ─────────────────────────────────────────────────────────
-    f('c_breast_raw', 'Chicken Breast (Raw)', 'Ức gà sống', 'Thịt (Đạm)', 110, 23.1, 0, 1.2, 100, '1 miếng'),
     f('c_breast_cooked', 'Chicken Breast (Cooked)', 'Ức gà luộc/hấp', 'Thịt (Đạm)', 165, 31, 0, 3.6, 100, '1 miếng'),
-    f('c_thigh_raw', 'Chicken Thigh (Raw)', 'Thịt đùi gà sống (bỏ da)', 'Thịt (Đạm)', 119, 19.9, 0, 4.3, 100, '1 đùi'),
     f('c_thigh_cooked', 'Chicken Thigh (Cooked)', 'Thịt đùi gà luộc (bỏ da)', 'Thịt (Đạm)', 195, 24, 0, 10, 100, '1 đùi'),
-    f('c_wing', 'Chicken Wing', 'Cánh gà', 'Thịt (Đạm)', 203, 18, 0, 14, 100, '1 cánh'),
-    f('turkey_breast', 'Turkey Breast', 'Ức gà tây', 'Thịt (Đạm)', 114, 23.7, 0, 1.5, 100, '1 miếng'),
-    f('b_tenderloin', 'Beef Tenderloin (Raw)', 'Thăn nội bò sống', 'Thịt (Đạm)', 133, 21.6, 0, 4.6, 100, '1 miếng'),
-    f('b_sirloin', 'Beef Sirloin (Raw)', 'Thăn ngoại bò sống', 'Thịt (Đạm)', 143, 22, 0, 5.5, 100, '1 lát'),
-    f('b_round', 'Beef Round (Raw)', 'Thịt đùi bò sống', 'Thịt (Đạm)', 121, 22.3, 0, 2.9, 100, '1 lát'),
-    f('b_ground_95', 'Lean Ground Beef 95%', 'Thịt bò xay 95% nạc', 'Thịt (Đạm)', 137, 21.4, 0, 5, 100, '1 viên'),
-    f('b_ground_85', 'Ground Beef 85%', 'Thịt bò xay 85% nạc', 'Thịt (Đạm)', 215, 18.6, 0, 15, 100, '1 viên'),
-    f('b_shank', 'Beef Shank', 'Bắp bò', 'Thịt (Đạm)', 135, 22, 0, 4, 100, '1 lát dày'),
-    f('p_tenderloin', 'Pork Tenderloin (Raw)', 'Thăn nội heo sống', 'Thịt (Đạm)', 120, 21, 0, 3.5, 100, '1 lát'),
-    f('p_chop', 'Pork Chop (Lean)', 'Sườn cốt lết heo', 'Thịt (Đạm)', 154, 21.3, 0, 7.1, 100, '1 miếng'),
-    f('p_shoulder', 'Pork Shoulder', 'Nạc vai heo', 'Thịt (Đạm)', 180, 18, 0, 11, 100, '1 lát'),
-    f('p_belly', 'Pork Belly', 'Thịt ba rọi heo', 'Thịt (Đạm)', 518, 9.3, 0, 53, 100, '1 miếng'),
-    f('p_leg', 'Pork Leg', 'Thịt chân giò heo nạc', 'Thịt (Đạm)', 150, 20, 0, 7, 100, '1 lát'),
-    f('duck_breast', 'Duck Breast', 'Ức vịt (bỏ da)', 'Thịt (Đạm)', 135, 19, 0, 6, 100, '1 miếng'),
-    f('duck_meat', 'Duck (With Skin)', 'Thịt vịt (co da)', 'Thịt (Đạm)', 337, 19, 0, 28, 100, '1 miếng'),
-    f('lamb_chop', 'Lamb Chop', 'Sườn cừu', 'Thịt (Đạm)', 250, 22, 0, 17, 100, '1 sườn'),
-    f('lamb_leg', 'Lamb Leg', 'Đùi cừu nạc', 'Thịt (Đạm)', 160, 21, 0, 8, 100, '1 lát'),
-    f('venison', 'Venison', 'Thịt nai nạc', 'Thịt (Đạm)', 120, 23, 0, 2.4, 100, '1 lát'),
-    f('goat_meat', 'Goat Meat', 'Thịt dê nạc', 'Thịt (Đạm)', 109, 21, 0, 2.3, 100, '1 miếng'),
-    f('frog_leg', 'Frog Legs', 'Đùi ếch', 'Thịt (Đạm)', 73, 16.4, 0, 0.3, 100, '2 đùi'),
-    f('b_liver', 'Beef Liver', 'Gan bò', 'Thịt (Đạm)', 135, 20.4, 3.9, 3.6, 100, '1 miếng'),
-    f('c_liver', 'Chicken Liver', 'Gan gà', 'Thịt (Đạm)', 119, 16.9, 0.7, 4.8, 100, '2 cái'),
-    f('p_liver', 'Pork Liver', 'Gan heo', 'Thịt (Đạm)', 134, 21.4, 2.5, 3.7, 100, '1 miếng'),
-    f('c_heart', 'Chicken Heart', 'Tim gà', 'Thịt (Đạm)', 153, 15.6, 0.1, 9.3, 100, '1 chén'),
-    f('b_heart', 'Beef Heart', 'Tim bò', 'Thịt (Đạm)', 112, 17.7, 0.1, 4, 100, '1 lát'),
-    f('p_heart', 'Pork Heart', 'Tim heo', 'Thịt (Đạm)', 118, 17.3, 0.4, 4.8, 100, '1 lát'),
+    f('c_wing_cooked', 'Chicken Wing (Cooked)', 'Cánh gà luộc/nướng', 'Thịt (Đạm)', 203, 18, 0, 14, 100, '1 cánh'),
+    f('c_roast', 'Roasted Chicken', 'Gà ta quay/nướng', 'Thịt (Đạm)', 237, 27, 0, 13.5, 100, '1 miếng'),
+    f('b_tenderloin_cooked', 'Beef Tenderloin (Cooked)', 'Thăn bò nướng/áp chảo', 'Thịt (Đạm)', 168, 26, 0, 6, 100, '1 miếng'),
+    f('b_ground_cooked', 'Lean Ground Beef (Cooked)', 'Thịt bò xay xào', 'Thịt (Đạm)', 180, 24, 0, 8, 100, '1 viên'),
+    f('b_shank_cooked', 'Beef Shank (Cooked)', 'Bắp bò luộc/hấp', 'Thịt (Đạm)', 175, 28, 0, 5, 100, '1 lát dày'),
+    f('b_stirfry', 'Beef Stir-fry', 'Thịt bò xào hành tây', 'Thịt (Đạm)', 210, 22, 5, 12, 100, '1 đĩa nhỏ'),
+    f('p_tenderloin_cooked', 'Pork Tenderloin (Cooked)', 'Thăn lợn luộc', 'Thịt (Đạm)', 143, 26, 0, 3.5, 100, '1 lát'),
+    f('p_chop_cooked', 'Pork Chop (Cooked)', 'Sườn cốt lết lợn nướng', 'Thịt (Đạm)', 197, 24, 0, 10, 100, '1 miếng'),
+    f('p_belly_cooked', 'Pork Belly (Cooked)', 'Thịt ba rọi lợn luộc/quay', 'Thịt (Đạm)', 518, 9.3, 0, 53, 100, '1 miếng'),
+    f('p_minced_cooked', 'Minced Pork (Cooked)', 'Thịt heo băm xào', 'Thịt (Đạm)', 240, 21, 0, 16, 100, '1 chén nhỏ'),
+    f('duck_meat_cooked', 'Duck (Cooked)', 'Thịt vịt luộc', 'Thịt (Đạm)', 201, 23, 0, 11, 100, '1 miếng'),
+    f('pork_sausage', 'Vietnamese Pork Sausage', 'Chả lụa (Giò lụa)', 'Thịt (Đạm)', 180, 14, 4, 12, 100, '1 khoanh'),
+    f('pork_floss', 'Pork Floss', 'Ruốc thịt heo (Chà bông)', 'Thịt (Đạm)', 392, 45, 10, 19, 20, '1 nắm nhỏ/2 thìa'),
+    f('goat_meat_cooked', 'Goat Meat (Cooked)', 'Thịt dê hấp', 'Thịt (Đạm)', 143, 27, 0, 3, 100, '1 miếng'),
+    f('frog_leg_cooked', 'Frog Legs (Cooked)', 'Đùi ếch xào/nướng', 'Thịt (Đạm)', 119, 24, 0, 2, 100, '2 đùi'),
+    f('b_liver_cooked', 'Beef Liver (Cooked)', 'Gan bò xào', 'Thịt (Đạm)', 175, 26, 5, 4.7, 100, '1 miếng'),
+    f('c_liver_cooked', 'Chicken Liver (Cooked)', 'Gan gà luộc', 'Thịt (Đạm)', 167, 24, 1, 6.5, 100, '2 cái'),
+    f('b_heart_cooked', 'Beef Heart (Cooked)', 'Tim bò xào/luộc', 'Thịt (Đạm)', 165, 28, 0.1, 5, 100, '1 lát'),
+    f('p_heart_cooked', 'Pork Heart (Cooked)', 'Tim heo luộc', 'Thịt (Đạm)', 150, 26, 0, 5, 100, '1 lát'),
 
     // ─── CÁ & HẢI SẢN (FISH & SEAFOOD) ──────────────────────────────────────────
     f('salmon_atlantic', 'Atlantic Salmon', 'Cá hồi Đại Tây Dương', 'Cá & Hải sản', 208, 20, 0, 13, 100, '1 fillet'),
@@ -159,7 +152,6 @@ export const DEFAULT_FOOD_DATABASE: FoodItem[] = [
     f('sardine_fresh', 'Fresh Sardines', 'Cá mòi tươi', 'Cá & Hải sản', 208, 24.6, 0, 11.4, 100, '1 con'),
     f('carp', 'Carp', 'Cá chép', 'Cá & Hải sản', 127, 17.8, 0, 5.6, 100, '1 khứa'),
     f('catfish', 'Catfish', 'Cá trê', 'Cá & Hải sản', 95, 16.4, 0, 2.8, 100, '1 con'),
-    f('shrimp_raw', 'Shrimp (Raw)', 'Tôm thẻ sống', 'Cá & Hải sản', 85, 20.1, 0, 0.5, 100, '5 con'),
     f('shrimp_cooked', 'Shrimp (Cooked)', 'Tôm luộc', 'Cá & Hải sản', 99, 24, 0.2, 0.3, 100, '5 con'),
     f('tiger_prawn', 'Tiger Prawn', 'Tôm sú', 'Cá & Hải sản', 106, 22, 0, 1, 100, '3 con'),
     f('crab_meat', 'Crab Meat', 'Thịt cua', 'Cá & Hải sản', 87, 18.1, 0, 1.1, 100, '1 chén'),
@@ -173,12 +165,12 @@ export const DEFAULT_FOOD_DATABASE: FoodItem[] = [
     f('snail', 'Snail', 'Ốc bươu', 'Cá & Hải sản', 90, 16.1, 2, 1.4, 100, '1 đĩa nhỏ'),
 
     // ─── TRỨNG (EGGS) ───────────────────────────────────────────────────────────
-    f('egg_whole_raw', 'Whole Egg (Raw)', 'Trứng gà (cả quả sống)', 'Trứng', 143, 12.6, 0.7, 9.5, 50, '1 quả'),
-    f('egg_white_raw', 'Egg White (Raw)', 'Lòng trắng trứng', 'Trứng', 52, 10.9, 0.7, 0.2, 100, '3 lòng trắng'),
-    f('egg_yolk_raw', 'Egg Yolk (Raw)', 'Lòng đỏ trứng', 'Trứng', 322, 15.9, 3.6, 26.5, 30, '2 lòng đỏ'),
-    f('duck_egg_whole', 'Duck Egg', 'Trứng vịt', 'Trứng', 185, 12.8, 1.5, 13.8, 70, '1 quả'),
-    f('quail_egg', 'Quail Egg', 'Trứng cút', 'Trứng', 158, 13.1, 0.4, 11.1, 50, '5 quả'),
     f('egg_boiled', 'Hard-Boiled Egg', 'Trứng gà luộc', 'Trứng', 155, 12.6, 1.1, 10.6, 50, '1 quả'),
+    f('egg_fried', 'Fried Egg', 'Trứng gà chiên / ốp la', 'Trứng', 196, 13.6, 0.8, 14.8, 50, '1 quả'),
+    f('egg_white_cooked', 'Egg White (Cooked)', 'Lòng trắng trứng luộc', 'Trứng', 52, 10.9, 0.7, 0.2, 100, '3 lòng trắng'),
+    f('egg_yolk_cooked', 'Egg Yolk (Cooked)', 'Lòng đỏ trứng', 'Trứng', 322, 15.9, 3.6, 26.5, 30, '2 lòng đỏ'),
+    f('duck_egg_boiled', 'Boiled Duck Egg', 'Trứng vịt luộc', 'Trứng', 185, 12.8, 1.5, 13.8, 70, '1 quả'),
+    f('quail_egg_boiled', 'Boiled Quail Egg', 'Trứng cút luộc', 'Trứng', 158, 13.1, 0.4, 11.1, 50, '5 quả'),
 
     // ─── SỮA & CHẾ PHẨM (DAIRY) ─────────────────────────────────────────────────
     f('milk_whole', 'Whole Milk (3.25%)', 'Sữa tươi nguyên kem', 'Sữa & Chế phẩm', 61, 3.2, 4.8, 3.3, 200, '1 ly'),
@@ -302,6 +294,24 @@ export const DEFAULT_FOOD_DATABASE: FoodItem[] = [
     f('dark_chocolate', 'Dark Chocolate', 'Socola đen 70-85%', 'Chất béo tốt', 598, 7.8, 45.9, 42.6, 30, '1 miếng vuông'),
     f('sesame_oil', 'Sesame Oil', 'Dầu mè', 'Chất béo tốt', 884, 0, 0, 100, 15, '1 thìa'),
     f('flaxseed_oil', 'Flaxseed Oil', 'Dầu hạt lanh', 'Chất béo tốt', 884, 0, 0, 100, 15, '1 thìa'),
+
+    // ─── MÓN ĂN VIỆT NAM (VIETNAMESE DISHES) ───────────────────────────────────
+    f('pho_bo', 'Phở bò', 'Phở bò chín', 'Món ăn Việt Nam', 350, 22, 45, 8, 400, '1 tô vừa'),
+    f('pho_ga', 'Phở gà', 'Phở gà', 'Món ăn Việt Nam', 330, 25, 43, 6, 400, '1 tô vừa'),
+    f('bun_bo_hue', 'Bún bò Huế', 'Bún bò Huế', 'Món ăn Việt Nam', 450, 26, 55, 12, 500, '1 tô'),
+    f('com_tam_suon', 'Cơm tấm sườn', 'Cơm tấm sườn nướng', 'Món ăn Việt Nam', 550, 28, 70, 18, 500, '1 đĩa'),
+    f('banh_mi_thit', 'Bánh mì thịt', 'Bánh mì thịt/chả', 'Món ăn Việt Nam', 380, 14, 45, 15, 200, '1 ổ'),
+    f('com_rang_dua_bo', 'Cơm rang dưa bò', 'Cơm rang dưa bò', 'Món ăn Việt Nam', 650, 30, 80, 22, 500, '1 đĩa'),
+    f('thit_kho_tau', 'Thịt kho tàu', 'Thịt heo kho trứng', 'Món ăn Việt Nam', 320, 18, 10, 25, 200, '1 chén'),
+    f('canh_chua_ca', 'Canh chua cá', 'Canh chua cá lóc', 'Món ăn Việt Nam', 150, 12, 15, 4, 400, '1 tô'),
+    f('bun_rieu', 'Bún riêu', 'Bún riêu cua', 'Món ăn Việt Nam', 350, 16, 50, 9, 500, '1 tô'),
+    f('xoi_xeo', 'Xôi xéo', 'Xôi xéo', 'Món ăn Việt Nam', 400, 10, 75, 8, 200, '1 gói nhỏ'),
+    f('banh_cuon', 'Bánh cuốn', 'Bánh cuốn nhân thịt', 'Món ăn Việt Nam', 300, 12, 45, 8, 300, '1 đĩa'),
+    f('bun_cha', 'Bún chả', 'Bún chả Hà Nội', 'Món ăn Việt Nam', 450, 22, 55, 16, 500, '1 suất'),
+    f('nem_ran', 'Chả giò', 'Chả giò (Nem rán)', 'Món ăn Việt Nam', 150, 5, 12, 9, 100, '2 cuốn'),
+    f('ga_kho_sa', 'Gà kho sả', 'Gà kho sả ớt', 'Món ăn Việt Nam', 220, 25, 5, 12, 200, '1 đĩa nhỏ'),
+    f('goi_cuon', 'Gỏi cuốn', 'Gỏi cuốn tôm thịt', 'Món ăn Việt Nam', 180, 10, 30, 3, 200, '3 cuốn'),
+    f('dau_hu_sot_ca', 'Đậu hũ sốt cà', 'Đậu hũ sốt cà chua', 'Món ăn Việt Nam', 180, 12, 8, 11, 250, '1 đĩa vừa'),
 ];
 
 // ─── Storage helpers ──────────────────────────────────────────────────────────

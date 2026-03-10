@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Search, X, Plus, Minus, Check, ChevronRight, Info, AlertCircle } from 'lucide-react';
 import {
     FOOD_CATEGORIES, type FoodItem, loadFoodDatabase,
@@ -57,6 +57,14 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
         servingLabel: '1 phần'
     };
 
+    const EMPTY_QUICK_ADD = {
+        nameVi: 'Thêm nhanh',
+        calories: 0,
+        protein: 0,
+        carbs: 0,
+        fat: 0,
+    };
+
     const [foods, setFoods] = useState<FoodItem[]>(() => loadFoodDatabase(userId));
     const [categories] = useState<string[]>(() => loadCategories(userId));
     const [query, setQuery] = useState('');
@@ -68,7 +76,9 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
 
     // Quick Add State
     const [isAddingNew, setIsAddingNew] = useState(false);
+    const [isQuickAdd, setIsQuickAdd] = useState(false);
     const [newFoodForm, setNewFoodForm] = useState(EMPTY_NEW_FOOD);
+    const [quickAddForm, setQuickAddForm] = useState(EMPTY_QUICK_ADD);
 
     const inputRef = useRef<HTMLInputElement>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -106,6 +116,30 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
         setCat('');
     };
 
+    const handleSaveQuickAdd = (e: React.FormEvent) => {
+        e.preventDefault();
+        const customFood: FoodItem = {
+            id: 'quickadd_' + Date.now(),
+            name: quickAddForm.nameVi,
+            nameVi: quickAddForm.nameVi,
+            category: 'Thêm nhanh',
+            per100g: {
+                calories: quickAddForm.calories,
+                protein: quickAddForm.protein,
+                carbs: quickAddForm.carbs,
+                fat: quickAddForm.fat
+            },
+            commonServingG: 100,
+            servingLabel: '1 Phần',
+            isCustom: true
+        };
+        // Add direct to meal, NOT database
+        onAdd(customFood, 100);
+        setIsQuickAdd(false);
+        setQuickAddForm(EMPTY_QUICK_ADD);
+        onClose();
+    };
+
     const handleServingClick = (label: string, g: number) => {
         setBaseServing({ label, grams: g });
         setMultiplier(1);
@@ -125,7 +159,7 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
         requestAnimationFrame(() => {
             if (scrollRef.current) scrollRef.current.scrollTop = 0;
         });
-    }, [cat, query, isAddingNew]);
+    }, [cat, query, isAddingNew, isQuickAdd]);
 
     const results = useMemo(() => {
         const q = query.toLowerCase();
@@ -169,17 +203,33 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                         <X size={20} />
                     </button>
                     <h2 className="text-sm font-black uppercase tracking-widest text-[#888]">
-                        {isAddingNew ? 'Tạo món ăn mới' : 'Thêm món ăn'}
+                        {isAddingNew ? 'Lưu món mới' : isQuickAdd ? 'Nhập tay nhanh' : 'Thêm món ăn'}
                     </h2>
-                    <button
-                        onClick={() => setIsAddingNew(!isAddingNew)}
-                        className={`w-10 h-10 -mr-2 rounded-full flex items-center justify-center transition-all ${isAddingNew ? 'bg-[#ff444415] text-[#ff4444] rotate-45' : 'bg-[#00ff8815] text-[#00ff88]'}`}
-                    >
-                        <Plus size={22} />
-                    </button>
+                    <div className="flex gap-2">
+                        {!isAddingNew && !isQuickAdd && (
+                            <button
+                                onClick={() => setIsQuickAdd(true)}
+                                className="px-3 h-10 rounded-full flex items-center justify-center transition-all bg-[#00e5ff15] text-[#00e5ff] text-[11px] font-black uppercase tracking-widest"
+                            >
+                                + Nhập tay
+                            </button>
+                        )}
+                        <button
+                            onClick={() => {
+                                if (isQuickAdd) {
+                                    setIsQuickAdd(false);
+                                } else {
+                                    setIsAddingNew(!isAddingNew);
+                                }
+                            }}
+                            className={`w-10 h-10 -mr-2 rounded-full flex items-center justify-center transition-all ${(isAddingNew || isQuickAdd) ? 'bg-[#ff444415] text-[#ff4444] rotate-45' : 'bg-[#00ff8815] text-[#00ff88]'}`}
+                        >
+                            <Plus size={22} />
+                        </button>
+                    </div>
                 </div>
 
-                {!isAddingNew && (
+                {!isAddingNew && !isQuickAdd && (
                     <div className="relative group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[#444] group-focus-within:text-[#00ff88] transition-colors" size={18} />
                         <input
@@ -205,7 +255,59 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
                 ref={scrollRef}
                 className="flex-1 overflow-y-auto hide-scrollbar overscroll-contain pb-20 mt-2 mx-4"
             >
-                {isAddingNew ? (
+                {isQuickAdd ? (
+                    <form onSubmit={handleSaveQuickAdd} className="space-y-5 py-2 fade-in">
+                        <div className="bg-[#00e5ff10] border border-[#00e5ff30] rounded-2xl p-4 mb-4">
+                            <p className="text-[12px] text-[#00e5ff] font-medium text-center">
+                                Nhập trực tiếp số Calo và Macros mà bạn lấy từ ChatGPT. Món này sẽ được lưu thẳng vào bữa ăn mà không lưu vào DataBase.
+                            </p>
+                        </div>
+                        <div className="space-y-4">
+                            <div>
+                                <label className="block text-[11px] font-bold text-[#444] uppercase tracking-widest mb-1.5 ml-1">Tên hiển thị (Tuỳ chọn)</label>
+                                <input
+                                    autoFocus
+                                    type="text"
+                                    placeholder="VD: Cơm gà nướng GPT"
+                                    value={quickAddForm.nameVi}
+                                    onChange={e => setQuickAddForm({ ...quickAddForm, nameVi: e.target.value })}
+                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3.5 text-[15px] text-white focus:border-[#00e5ff50] outline-none transition-all"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3">
+                                {[
+                                    { label: 'Calories', sub: 'Tổng Kcal', key: 'calories', color: '#fff' },
+                                    { label: 'Protein', sub: 'Tổng Gram', key: 'protein', color: '#00ff88' },
+                                    { label: 'Carbs', sub: 'Tổng Gram', key: 'carbs', color: '#00e5ff' },
+                                    { label: 'Fat', sub: 'Tổng Gram', key: 'fat', color: '#ffb800' }
+                                ].map(field => (
+                                    <div key={field.key} className="bg-white/[0.03] border border-white/5 rounded-2xl p-3">
+                                        <label className="block text-[10px] font-bold uppercase tracking-tight mb-1" style={{ color: field.color }}>{field.label}</label>
+                                        <div className="flex items-baseline gap-1">
+                                            <input
+                                                type="number" step="0.1"
+                                                value={quickAddForm[field.key as keyof typeof quickAddForm] || ''}
+                                                onChange={e => setQuickAddForm({ ...quickAddForm, [field.key]: parseFloat(e.target.value) || 0 })}
+                                                className="w-full bg-transparent text-lg font-black text-white outline-none"
+                                                placeholder="0"
+                                            />
+                                            <span className="text-[9px] font-bold text-[#444] whitespace-nowrap">{field.sub}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full py-4 rounded-2xl bg-[#00e5ff] text-black text-[15px] font-black uppercase tracking-widest shadow-[0_8px_32px_rgba(0,229,255,0.3)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                        >
+                            <Check size={20} strokeWidth={3} />
+                            Thêm Trực Tiếp
+                        </button>
+                    </form>
+                ) : isAddingNew ? (
                     <form onSubmit={handleSaveNewFood} className="space-y-5 py-2 fade-in">
                         <div className="space-y-4">
                             <div>
@@ -503,7 +605,7 @@ export function FoodSearchModal({ userId, onClose, onAdd }: Props) {
             </div>
 
             {/* Hint bar at bottom */}
-            {!isAddingNew && (
+            {!isAddingNew && !isQuickAdd && (
                 <div className="bg-[#111] border-t border-white/5 px-4 py-4 flex items-center justify-center gap-2 text-[#444] shrink-0">
                     <Info size={14} />
                     <span className="text-[11px] font-bold">Chọn món để xem chi tiết dinh dưỡng</span>

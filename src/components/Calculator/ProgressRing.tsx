@@ -26,6 +26,12 @@ export function ProgressRing({ current, target, size = 240, strokeWidth = 16 }: 
         dropShadow = 'drop-shadow-[0_0_12px_rgba(255,184,0,0.5)]';
     }
 
+    // Format numbers safely to prevent scientific notation overflow (e.g. 8e+50)
+    const safeCurrent = isNaN(current) ? 0 : Math.min(Math.max(current, 0), 99999);
+    const safeTarget = isNaN(target) ? 0 : Math.max(target, 0);
+    const diff = Math.max(0, safeTarget - safeCurrent);
+    const displayDiff = diff > 99999 ? '99999+' : Math.round(diff);
+
     return (
         <div className="relative flex items-center justify-center p-4">
             <svg width={size} height={size} className="transform -rotate-90">
@@ -61,12 +67,12 @@ export function ProgressRing({ current, target, size = 240, strokeWidth = 16 }: 
                     Còn Lại
                 </span>
                 <span className={`text-4xl font-extrabold ${colorClass} tracking-tighter mb-1`}>
-                    {Math.max(0, target - current)}
+                    {displayDiff}
                 </span>
-                <div className="text-[12px] text-[#666] font-medium flex gap-2">
-                    <span>🔥 {current} ăn</span>
+                <div className="text-[12px] text-[#666] font-medium flex gap-2 overflow-hidden px-4">
+                    <span className="truncate">🔥 {safeCurrent > 99999 ? '99999+' : Math.round(safeCurrent)} ăn</span>
                     <span>/</span>
-                    <span>{target} kcal</span>
+                    <span className="truncate">{safeTarget} kcal</span>
                 </div>
             </div>
         </div>

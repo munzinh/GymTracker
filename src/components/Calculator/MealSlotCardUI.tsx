@@ -47,14 +47,14 @@ export function MealSlotCard({ userId, slot, dailyTotals, dailyTargets, onAdd, o
                     <p className="font-bold text-[14px] text-white">{slot.name}</p>
                     <p className="text-[11px] mt-0.5 truncate" style={{ color: slot.totals.calories > 0 ? accent : '#555' }}>
                         {slot.totals.calories > 0
-                            ? `${slot.totals.calories} kcal · ${slot.items.length} món`
+                            ? `${Math.round(slot.totals.calories)} kcal · ${slot.items.length} món`
                             : 'Chưa có món nào · mục tiêu ~' + mealTarget + ' kcal'}
                     </p>
                 </div>
                 {/* Progress mini */}
                 <div className="w-16 shrink-0">
                     <div className="h-1 rounded-full mb-0.5" style={{ background: '#2a2a2a' }}>
-                        <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: isOver ? '#ff4444' : accent }} />
+                        <div className="h-full rounded-full transition-all" style={{ width: `${Math.min(100, pct)}%`, background: isOver ? '#ff4444' : accent }} />
                     </div>
                     <p className="text-[9px] text-right" style={{ color: isOver ? '#ff4444' : '#555' }}>{Math.round(pct)}%</p>
                 </div>
@@ -97,7 +97,7 @@ export function MealSlotCard({ userId, slot, dailyTotals, dailyTargets, onAdd, o
                             </div>
 
                             {/* Calo + delete */}
-                            <span className="font-black text-[14px] text-white shrink-0">{item.macros.calories}</span>
+                            <span className="font-black text-[14px] text-white shrink-0 truncate max-w-[60px] text-right">{Math.round(item.macros.calories)}</span>
                             <button onClick={e => { e.stopPropagation(); onRemove(item.id); }}
                                 className="w-7 h-7 flex items-center justify-center rounded-lg text-[#444] hover:text-[#ff4444] hover:bg-[#ff444415] transition-colors shrink-0">
                                 <Trash2 size={13} />
@@ -111,10 +111,10 @@ export function MealSlotCard({ userId, slot, dailyTotals, dailyTargets, onAdd, o
                             style={{ background: '#161616', border: `1px solid ${accent}18` }}>
                             <span className="text-[10px] text-[#555] font-bold uppercase tracking-wide">Tổng</span>
                             <div className="flex gap-2.5 text-[11px] font-bold">
-                                <span className="text-white">{totals.calories}kcal</span>
-                                <span style={{ color: '#00ff88' }}>P{totals.protein}</span>
-                                <span style={{ color: '#00e5ff' }}>C{totals.carbs}</span>
-                                <span style={{ color: '#ffb800' }}>F{totals.fat}</span>
+                                <span className="text-white">{Math.round(totals.calories)}kcal</span>
+                                <span style={{ color: '#00ff88' }}>P{Math.round(totals.protein)}</span>
+                                <span style={{ color: '#00e5ff' }}>C{Math.round(totals.carbs)}</span>
+                                <span style={{ color: '#ffb800' }}>F{Math.round(totals.fat)}</span>
                             </div>
                         </div>
                     )}

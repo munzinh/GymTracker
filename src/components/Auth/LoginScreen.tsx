@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { User, Plus, Trash2, ArrowRight } from 'lucide-react';
 
 interface UserProfile {

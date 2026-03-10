@@ -1,6 +1,36 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
+:root {
+  /* Light mode colors */
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --card-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #64748b;
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+}
+
+.dark {
+  /* Dark mode colors */
+  --bg: #090909;
+  --surface: #0a0a0a;
+  --card: #121212;
+  --card-hover: #181818;
+  --border: #222222;
+  --text: #f0f0f0;
+  --muted: #888888;
+  --input-bg: #1a1a1a;
+  --input-border: #2a2a2a;
+  --scrollbar-track: #111111;
+  --scrollbar-thumb: #333333;
+}
+
 @theme {
   --color-neon: #00ff88;
   --color-neon-dim: #00cc6a;
@@ -9,23 +39,22 @@
   --color-neon-yellow: #ffdf00;
   --color-neon-yellow-glow: rgba(255, 223, 0, 0.4);
 
-  --color-neon-red: #ff3333;
-  --color-neon-red-glow: rgba(255, 51, 51, 0.4);
+  --color-neon-red: #ff4444;
+  --color-neon-red-glow: rgba(255, 68, 68, 0.4);
 
   --color-neon-blue: #00e5ff;
   --color-neon-blue-glow: rgba(0, 229, 255, 0.4);
 
-  --color-bg: #050505;
-  --color-surface: #0a0a0a;
-  --color-card: #121212;
-  --color-card-hover: #181818;
-  --color-border: #222222;
-  --color-text: #f0f0f0;
-  --color-muted: #888888;
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-card: var(--card);
+  --color-card-hover: var(--card-hover);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
 
   --font-sans: 'Inter', sans-serif;
 }
-
 
 * {
   box-sizing: border-box;
@@ -35,10 +64,11 @@ html,
 body,
 #root {
   height: 100%;
-  background-color: #090909;
-  color: #f0f0f0;
+  background-color: var(--bg);
+  color: var(--text);
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Scrollbar */
@@ -47,11 +77,11 @@ body,
 }
 
 ::-webkit-scrollbar-track {
-  background: #111111;
+  background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: var(--scrollbar-thumb);
   border-radius: 2px;
 }
 
@@ -116,9 +146,9 @@ input[type="number"],
 input[type="date"],
 textarea,
 select {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  color: #f0f0f0;
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text);
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
   width: 100%;
@@ -140,12 +170,12 @@ select:focus {
 input[type="text"]::placeholder,
 input[type="number"]::placeholder,
 textarea::placeholder {
-  color: #555;
+  color: var(--muted);
 }
 
 /* Button */
 .btn-primary {
-  background: #00ff88;
+  background: var(--color-neon);
   color: #090909;
   font-weight: 600;
   padding: 0.5rem 1.25rem;
@@ -158,14 +188,14 @@ textarea::placeholder {
 }
 
 .btn-primary:hover {
-  background: #00cc6a;
-  box-shadow: 0 0 12px rgba(0, 255, 136, 0.3);
+  background: var(--color-neon-dim);
+  box-shadow: 0 0 12px var(--color-neon-glow);
 }
 
 .btn-secondary {
   background: transparent;
-  color: #888;
-  border: 1px solid #2a2a2a;
+  color: var(--muted);
+  border: 1px solid var(--input-border);
   font-weight: 500;
   padding: 0.5rem 1.25rem;
   border-radius: 0.5rem;
@@ -176,14 +206,14 @@ textarea::placeholder {
 }
 
 .btn-secondary:hover {
-  border-color: #444;
-  color: #ccc;
+  border-color: var(--border);
+  color: var(--text);
 }
 
 .btn-danger {
   background: transparent;
-  color: #ff4444;
-  border: 1px solid #ff4444;
+  color: var(--color-neon-red);
+  border: 1px solid var(--color-neon-red);
   font-weight: 500;
   padding: 0.5rem 1.25rem;
   border-radius: 0.5rem;
@@ -194,7 +224,7 @@ textarea::placeholder {
 }
 
 .btn-danger:hover {
-  background: #ff4444;
+  background: var(--color-neon-red);
   color: #fff;
 }
 
