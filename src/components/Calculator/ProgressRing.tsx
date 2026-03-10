@@ -1,3 +1,6 @@
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+
 interface ProgressRingProps {
     current: number;
     target: number;
@@ -14,16 +17,25 @@ export function ProgressRing({ current, target, size = 240, strokeWidth = 16 }: 
     const cappedPercent = Math.min(percent, 1);
     const offset = circumference - cappedPercent * circumference;
 
+    // Optional animation state for initial load
+    const [isLoaded, setIsLoaded] = useState(false);
+    useEffect(() => {
+        setIsLoaded(true);
+    }, []);
+
     // Color logic
+    let strokeUrl = 'url(#neonGreen)';
     let colorClass = 'text-[#00ff88]'; // Default Green (under 80%)
-    let dropShadow = 'drop-shadow-[0_0_12px_rgba(0,255,136,0.5)]';
+    let dropShadow = 'drop-shadow-[0_0_15px_rgba(0,255,136,0.6)]';
 
     if (percent >= 1) {
+        strokeUrl = 'url(#neonRed)';
         colorClass = 'text-[#ff4444]'; // Over limit
-        dropShadow = 'drop-shadow-[0_0_12px_rgba(255,68,68,0.5)]';
+        dropShadow = 'drop-shadow-[0_0_15px_rgba(255,68,68,0.6)]';
     } else if (percent >= 0.8) {
+        strokeUrl = 'url(#neonOrange)';
         colorClass = 'text-[#ffb800]'; // Warning zone
-        dropShadow = 'drop-shadow-[0_0_12px_rgba(255,184,0,0.5)]';
+        dropShadow = 'drop-shadow-[0_0_15px_rgba(255,184,0,0.6)]';
     }
 
     // Format numbers safely to prevent scientific notation overflow (e.g. 8e+50)
@@ -35,9 +47,24 @@ export function ProgressRing({ current, target, size = 240, strokeWidth = 16 }: 
     return (
         <div className="relative flex items-center justify-center p-4">
             <svg width={size} height={size} className="transform -rotate-90">
+                <defs>
+                    <linearGradient id="neonGreen" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#00ff88" />
+                        <stop offset="100%" stopColor="#00cc6a" />
+                    </linearGradient>
+                    <linearGradient id="neonOrange" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#ffb800" />
+                        <stop offset="100%" stopColor="#ff9500" />
+                    </linearGradient>
+                    <linearGradient id="neonRed" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#ff4444" />
+                        <stop offset="100%" stopColor="#cc0000" />
+                    </linearGradient>
+                </defs>
+
                 {/* Background Ring */}
                 <circle
-                    className="text-[#1e1e1e]"
+                    className="text-white/5"
                     strokeWidth={strokeWidth}
                     stroke="currentColor"
                     fill="transparent"
@@ -46,18 +73,20 @@ export function ProgressRing({ current, target, size = 240, strokeWidth = 16 }: 
                     cy={size / 2}
                 />
 
-                {/* Foreground Progress */}
-                <circle
-                    className={`${colorClass} transition-all duration-1000 ease-out ${dropShadow}`}
+                {/* Foreground Progress (Animated) */}
+                <motion.circle
+                    className={`${dropShadow}`}
                     strokeWidth={strokeWidth}
                     strokeDasharray={circumference}
-                    strokeDashoffset={offset}
                     strokeLinecap="round"
-                    stroke="currentColor"
+                    stroke={strokeUrl}
                     fill="transparent"
                     r={radius}
                     cx={size / 2}
                     cy={size / 2}
+                    initial={{ strokeDashoffset: circumference }}
+                    animate={{ strokeDashoffset: isLoaded ? offset : circumference }}
+                    transition={{ duration: 1.5, ease: "easeOut", type: "spring", bounce: 0.2 }}
                 />
             </svg>
 

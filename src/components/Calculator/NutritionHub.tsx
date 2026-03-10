@@ -384,12 +384,12 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                             <div className="text-center">
                                 <span className="text-sm font-bold text-white flex items-center justify-center gap-1.5">
                                     <Calendar size={14} className="text-[#00ff88]" />
-                                    {isToday ? 'Hôm nay' : new Date(selectedDate).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}
+                                    {isToday ? 'Hôm nay' : new Date(selectedDate).toLocaleDateString('vi-VN', { weekday: 'long' })}
                                 </span>
-                                <span className="text-[10px] text-[#666]">
+                                <span className="text-[12px] text-[00ff88]">
                                     {(() => {
                                         const [y, m, d] = selectedDate.split('-');
-                                        return `${d}/${m}/${y}`;
+                                        return `${d} - ${m}`;
                                     })()}
                                 </span>
                             </div>

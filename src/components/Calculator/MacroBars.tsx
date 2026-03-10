@@ -45,22 +45,22 @@ interface Props {
 
 const statusColors = {
     UNDER: {
-        text: 'text-neon-blue', // Electric Cyan
-        bar: 'bg-neon-blue shadow-[0_0_12px_var(--color-neon-blue-glow)]',
-        bg: 'bg-neon-blue/5',
-        border: 'border-neon-blue/20'
+        text: 'text-[#00e5ff]', // Electric Cyan
+        bar: 'bg-gradient-to-r from-[#00e5ff] to-[#00b8ff] shadow-[0_0_15px_rgba(0,229,255,0.4)]',
+        bg: 'bg-[#00e5ff]/5',
+        border: 'border-[#00e5ff]/20'
     },
     OPTIMAL: {
-        text: 'text-neon', // Neon Green
-        bar: 'bg-neon shadow-[0_0_12px_var(--color-neon-glow)]',
-        bg: 'bg-neon/5',
-        border: 'border-neon/20'
+        text: 'text-[#00ff88]', // Neon Green
+        bar: 'bg-gradient-to-r from-[#00ff88] to-[#00cc6a] shadow-[0_0_15px_rgba(0,255,136,0.4)]',
+        bg: 'bg-[#00ff88]/5',
+        border: 'border-[#00ff88]/20'
     },
     OVER: {
-        text: 'text-neon-red', // Neon Red/Pink
-        bar: 'bg-neon-red shadow-[0_0_15px_var(--color-neon-red-glow)]',
-        bg: 'bg-neon-red/5',
-        border: 'border-neon-red/20'
+        text: 'text-[#ff4444]', // Neon Red/Pink
+        bar: 'bg-gradient-to-r from-[#ff4444] to-[#cc0000] shadow-[0_0_15px_rgba(255,68,68,0.4)]',
+        bg: 'bg-[#ff4444]/5',
+        border: 'border-[#ff4444]/20'
     }
 };
 
@@ -94,13 +94,18 @@ export function MacroBars({ current, target, bodyWeight }: Props) {
         const overflowWidth = Math.max(0, visualPercent - targetLinePercent);
 
         return (
-            <div className={`p-4 rounded-2xl border transition-all duration-300 ${config.bg} ${config.border} backdrop-blur-[2px]`}>
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+                className={`p-4 rounded-3xl border transition-all duration-300 ${config.bg} ${config.border} backdrop-blur-md`}
+            >
                 <div className="flex justify-between items-end mb-3">
                     <div className="flex flex-col">
                         <div className="flex items-center gap-2">
-                            <span className="font-black text-white text-lg tracking-tight uppercase leading-none">{label}</span>
+                            <span className="font-black text-white text-[15px] tracking-tight uppercase leading-none">{label}</span>
                             {status === 'OVER' && ratio > 1.1 && (
-                                <span className="text-[10px] bg-neon-red text-white px-1.5 py-0.5 rounded font-black uppercase tracking-tighter animate-pulse-red">
+                                <span className="text-[10px] bg-[#ff4444] text-white px-1.5 py-0.5 rounded font-black uppercase tracking-tighter animate-pulse shadow-[0_0_10px_rgba(255,68,68,0.5)]">
                                     OVER {(ratio * 100 - 100).toFixed(0)}%
                                 </span>
                             )}
@@ -113,58 +118,58 @@ export function MacroBars({ current, target, bodyWeight }: Props) {
                     </div>
                     <div className="text-right leading-none">
                         <div className="flex items-baseline justify-end gap-1">
-                            <AnimatedNumber value={curr} className={`text-2xl font-black tabular-nums transition-colors ${config.text}`} />
-                            <span className="text-xs text-muted font-bold">/ {targ}g</span>
+                            <AnimatedNumber value={curr} className={`text-[22px] font-black tabular-nums transition-colors ${config.text}`} />
+                            <span className="text-[11px] text-[#666] font-bold">/ {targ}g</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="relative h-3 bg-card rounded-full overflow-hidden border border-border">
+                <div className="relative h-3.5 bg-black/40 rounded-full overflow-hidden border border-white/5 shadow-inner">
                     {/* Normal Zone (up to 100%) */}
                     <motion.div
-                        className={`absolute top-0 left-0 h-full ${config.bar}`}
+                        className={`absolute top-0 left-0 h-full rounded-full ${config.bar}`}
                         initial={{ width: 0 }}
                         animate={{ width: `${baseWidth}%` }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] /* cubic-bezier for slicker feel */ }}
                     />
 
                     {/* Overflow Zone (beyond 100%) */}
                     {overflowWidth > 0 && (
                         <motion.div
-                            className="absolute top-0 h-full bg-neon-red shadow-[0_0_15px_var(--color-neon-red-glow)]"
+                            className="absolute top-0 h-full rounded-full bg-gradient-to-r from-[#ff4444] to-[#cc0000] shadow-[0_0_15px_rgba(255,68,68,0.6)]"
                             initial={{ width: 0 }}
                             animate={{ width: `${overflowWidth}%` }}
-                            transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
+                            transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
                             style={{ left: `${targetLinePercent}%` }}
                         />
                     )}
 
                     {/* Target Vertical Guideline | */}
                     <div
-                        className="absolute top-0 h-full w-[1.5px] bg-white shadow-[0_0_8px_white] z-20"
+                        className="absolute top-0 h-full w-[2px] bg-white shadow-[0_0_10px_white] z-20 rounded-full"
                         style={{ left: `${targetLinePercent}%` }}
                     />
                 </div>
-            </div>
+            </motion.div>
         );
     };
 
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between px-1">
-                <h3 className="font-black text-xs text-muted uppercase tracking-[0.2em]">Cân bằng Dinh dưỡng</h3>
+                <h3 className="font-black text-[11px] text-[#555] uppercase tracking-[0.2em]">Cân bằng Dinh dưỡng</h3>
                 <div className="flex gap-2">
                     <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-neon-blue" />
-                        <span className="text-[9px] font-bold text-muted uppercase">Under</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#00e5ff] shadow-[0_0_5px_#00e5ff]" />
+                        <span className="text-[9px] font-bold text-[#666] uppercase">Under</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-neon" />
-                        <span className="text-[9px] font-bold text-muted uppercase">Optimal</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#00ff88] shadow-[0_0_5px_#00ff88]" />
+                        <span className="text-[9px] font-bold text-[#666] uppercase">Optimal</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <div className="w-2 h-2 rounded-full bg-neon-red" />
-                        <span className="text-[9px] font-bold text-muted uppercase">Over</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#ff4444] shadow-[0_0_5px_#ff4444]" />
+                        <span className="text-[9px] font-bold text-[#666] uppercase">Over</span>
                     </div>
                 </div>
             </div>
