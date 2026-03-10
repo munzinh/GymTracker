@@ -386,7 +386,12 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                                     <Calendar size={14} className="text-[#00ff88]" />
                                     {isToday ? 'Hôm nay' : new Date(selectedDate).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })}
                                 </span>
-                                <span className="text-[10px] text-[#666]">{selectedDate}</span>
+                                <span className="text-[10px] text-[#666]">
+                                    {(() => {
+                                        const [y, m, d] = selectedDate.split('-');
+                                        return `${d}/${m}/${y}`;
+                                    })()}
+                                </span>
                             </div>
                             <button onClick={() => navigateDate(1)} disabled={selectedDate >= getTodayStr()}
                                 className="p-2 bg-[#1a1a1a] rounded-lg text-[#888] hover:text-white transition-colors disabled:opacity-30 disabled:hover:text-[#888]">
