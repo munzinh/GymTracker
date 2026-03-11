@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { MealSlot, MacroSummary } from '../../types/nutrition';
 import { Plus, Trash2, Zap, ChevronDown } from 'lucide-react';
@@ -163,12 +164,13 @@ export function MealSlotCard({ userId, slot, dailyTotals, dailyTargets, onAdd, o
                 )}
             </AnimatePresence>
 
-            {searchOpen && (
+            {searchOpen && createPortal(
                 <FoodSearchModal
                     userId={userId}
                     onClose={() => setSearchOpen(false)}
                     onAdd={(f, g) => { onAdd(f, g); setSearchOpen(false); }}
-                />
+                />,
+                document.body
             )}
         </motion.div>
     );

@@ -248,7 +248,7 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                 </div>
 
                 {/* DROPDOWN MENU (Absolute Overlay) */}
-                <div className={`absolute top-full left-0 right-0 z-50 overflow-hidden transition-all duration-300 cubic-bezier(0.16, 1, 0.3, 1) ${isSidebarOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                <div className={`absolute top-full left-0 right-0 z-50 overflow-hidden transition-all duration-300 cubic-bezier(0.16, 1, 0.3, 1) ${isSidebarOpen ? 'max-h-[500px] opacity-100 pointer-events-auto' : 'max-h-0 opacity-0 pointer-events-none'}`}>
                     <div className="mx-4 mt-2 p-3 bg-[#0a0a0a]/95 backdrop-blur-xl border border-[#222] rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] overflow-y-auto max-h-[450px]">
                         <div className="grid grid-cols-1 gap-2">
                             {[
@@ -389,7 +389,7 @@ export function NutritionHub({ currentUser, onLogout }: { currentUser: import('.
                                 <span className="text-[12px] text-[00ff88]">
                                     {(() => {
                                         const [y, m, d] = selectedDate.split('-');
-                                        return `${d} - ${m}`;
+                                        return `${d} - ${m} - ${y}`;
                                     })()}
                                 </span>
                             </div>
